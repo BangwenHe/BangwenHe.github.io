@@ -1,0 +1,178 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Attention or Filter or Others? | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="Attention or Filter or Others? | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="最近搜索了一些有关动作识别领域或者GCN领域的健壮性识别论文，主要有一下几个分类：
+
+模型结构的设计。RAGCN通过多流（Multi-stream）不断地学习不同Mask下的动作信息来学习到所有状态下的特征。
+先验信息。PeGCN认为噪声的..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Attention or Filter or Others?
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-10-29
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>最近搜索了一些有关动作识别领域或者GCN领域的<strong>健壮性</strong>识别论文，主要有一下几个分类：</p>
+<ul>
+<li>模型结构的设计。<a href="https://ieeexplore.ieee.org/abstract/document/9162143">RAGCN</a>通过多流（Multi-stream）不断地学习不同Mask下的动作信息来学习到所有状态下的特征。</li>
+<li>先验信息。<a href="https://link.springer.com/article/10.1007/s10489-021-02487-z">PeGCN</a>认为噪声的关节和正常的关节在auto encoder下学习到相似的latent distribution。</li>
+<li>注意力机制和dropout。通过注意力机制抑制或者直接丢弃错误的关节点</li>
+<li>滤波器。</li>
+<li>高斯分布。<a href="https://doi.org/10.1145/3292500.3330851">RGCN</a>通过在GCN隐藏层中使用高斯分布来吸收（缓解）攻击信息；<a href="http://arxiv.org/abs/2104.13586">PoseC3D</a>通过2D高斯热力图堆叠成的3D热力图来进行动作识别。这两篇论文都使用了高斯分布来降低图节点上的信息抖动对结果造成的影响。</li>
+</ul>
+<p>我觉得我们可以用两个方法的结合——高斯分布+注意力机制。高斯分布我的想法是要计算出一个高斯和位置坐标的共同表征，但是目前还没想好怎么做。注意力就比较简单，我觉得核心就是压缩+softmax，后面就看这个模块会怎么设计。</p>
+<p>要放在手机端上的话，我觉得我们需要把延时测试一下。如果延时已经比较长了，可以把注意力机制给移除掉。</p>
+<p>为什么不用GCN，而是用Graphsage？因为GCN的算法识别效果会更好，而且绝大部分的骨架动作识别都是采用GCN框架。我觉得可能的解释是GCN只能做单人识别，无法推广到多人识别，如果能够直接做多人识别，可以降低模型的计算量，降低延时。graphsage是基于邻接点采样的，它并不要求所有的图节点是固定的，而是可以动态变化的，所以graphsage可以用来做多人识别。当然，这条就基于我们能做多人识别的基础上。</p>
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/nn-meter/">
+              <h3 class="post-title">
+                nn-Meter
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

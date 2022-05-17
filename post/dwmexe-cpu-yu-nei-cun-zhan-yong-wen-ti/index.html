@@ -1,0 +1,188 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>dwm.exe CPU与内存占用问题 | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="dwm.exe CPU与内存占用问题 | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="今天dwm（桌面窗口管理器）在我电脑上发生了内存泄漏，导致内存占用达到了3.6G。通过更新核显驱动，修复了这个bug。
+修复之后，dwm的内存占用还是有500MB，CPU占用还有8%。我认为它两不应该这么高，程序上下文也没有这么多。
+看到d..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              dwm.exe CPU与内存占用问题
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-11-25
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>今天dwm（桌面窗口管理器）在我电脑上发生了内存泄漏，导致内存占用达到了3.6G。通过更新核显驱动，修复了这个bug。</p>
+<p>修复之后，dwm的内存占用还是有500MB，CPU占用还有8%。我认为它两不应该这么高，程序上下文也没有这么多。</p>
+<p>看到<a href="https://baike.baidu.com/item/%E6%A1%8C%E9%9D%A2%E7%AA%97%E5%8F%A3%E7%AE%A1%E7%90%86%E5%99%A8/6408482">dwm</a>介绍中的『在系统内存中分配一个和窗口大小一样的内存块，然后和窗口关联』和『显示内存中也分配一个同样大小、指定像素格式的显存块』后，我认为应该是我的双屏+其中一个屏幕还是4K屏导致的，同时<code>nvidia-smi</code>也的确显示有好几个窗口占用了显存。把两个显示器全连接到显卡上之后，内存占用就下去了。</p>
+<p>CPU占用高大概是因为wallpaper engine在后台导致dwm需要管理副屏输出，因为CPU和GPU同时被dwm使用了。在关闭wallpaper engine后，CPU占用就只有0.3%了。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">问题</th>
+<th style="text-align:center">原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">内存占用400~500MB</td>
+<td style="text-align:center">4k+1080P显示</td>
+</tr>
+<tr>
+<td style="text-align:center">CPU占用10%</td>
+<td style="text-align:center">wallpaper engine双屏渲染</td>
+</tr>
+</tbody>
+</table>
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/git/">
+              <h3 class="post-title">
+                Git
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

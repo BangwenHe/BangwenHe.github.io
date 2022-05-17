@@ -1,0 +1,380 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>gnn-ar | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="gnn-ar | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="
+Various research studies indicate that the performance of action recognition is highly dependent on the type of feature..." />
+    <meta name="keywords" content="paper,gnn" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              gnn-ar
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-09-24
+              </span>
+              <span>
+                8 min read
+              </span>
+              
+                <a href="https://blog.bangwhe.com/tag/ph152k7kZ/" class="post-tag">
+                  # paper
+                </a>
+              
+                <a href="https://blog.bangwhe.com/tag/FwxriVISW/" class="post-tag">
+                  # gnn
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <blockquote>
+<p>Various research studies indicate that the performance of action recognition is highly dependent on <strong>the type of features being extracted and how the actions are represented</strong>.</p>
+</blockquote>
+<!-- more -->
+<p>论文主要来源：<a href="https://github.com/niais/Awesome-Skeleton-based-Action-Recognition">Awesome-Skeleton-based-Action-Recognition</a></p>
+<p>1、了解GNN应用于Action Recognition 最新的一些工作，主要看 解决了什么问题，有什么创新点</p>
+<p>2、看这些工作，哪些的开源了的（方便后期做对比）</p>
+<p>3、帧采样的规则，如不采样、5帧采样、10帧采样等等。（有些数据集已经做过采样了，按照数据集运行就可以了）</p>
+<h2 id="introduction">Introduction</h2>
+<p>此类论文是如何进行开篇的？</p>
+<p>3D关键点，可以通过多种途径收集关键点信息，例如Kinects设备。因为2D关键点映射到了像素坐标系上，丢失了一部分信息，大部分的代码使用的都是3D数据集——NTU RGBD，我后面的<code>指标</code>一栏也都是截的这个数据集的指标。</p>
+<p>基于RNN或者CNN的方法不能很好的描述关键点的信息。</p>
+<p>如何构建图？1、自然连接，如coco或者NTU-RGBD提供的自然连接方式；2、创建新的连接，手动设计连接、统计学连接、模型学习连接、剪枝连接（待议，因为我还没看过相关的）</p>
+<p>机器、人机交互</p>
+<h2 id="spatial-temporal-graph-convolutional-networks-for-skeleton-based-action-recognition"><a href="https://arxiv.org/abs/1801.07455">Spatial Temporal Graph Convolutional Networks for Skeleton-Based Action Recognition</a></h2>
+<p>会议及时间：AAAI，Arxiv 2018-01</p>
+<p>开源地址：<a href="https://github.com/yysijie/st-gcn">st-gcn</a>，<a href="https://github.com/open-mmlab/mmskeleton">mmskeleton</a></p>
+<p>贡献点：</p>
+<ul>
+<li>
+<p>ST-GCN，提出了一个泛化的基于图的动态骨架建模方法，这是首个将图神经网络用于此项任务</p>
+</li>
+<li>
+<p>提出了多个设计针对ST-GCN的设计卷积核的规则，以满足骨架建模的特殊需求</p>
+</li>
+<li>
+<p>在两个大型的基于骨架的动作识别数据集上，所提出的方法与此前的手工设计的、遍历规则的模型相比，取得了超越性的表现，同时也降低了手工设计特征的开销</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="1"><img src="https://blog.bangwhe.com/post-images/1632475061822.png" alt="" loading="lazy"></figure>
+<h2 id="part-based-graph-convolutional-network-for-action-recognition-bmvc-2018"><a href="https://arxiv.org/pdf/1809.04983.pdf">Part-based Graph Convolutional Network for Action Recognition (BMVC 2018)</a></h2>
+<p>会议及时间：BMVC（CCF-C），Arxiv 2018-09</p>
+<p>开源地址：暂无</p>
+<p>贡献点：</p>
+<ul>
+<li>
+<p>设计了一个通用的<strong>部分关节图卷积网络</strong>（PB-GCN）</p>
+</li>
+<li>
+<p>使用<strong>外观和运动特征</strong>而非3D关节点来进行加速，什么是外观和运动特征？<code>Geometric features such as relative joint coordinates and motion features such as temporal displacements can be more informative for action recognition.</code> 外观特征是相对关节坐标，运动特征是时间位移，这个运动特征类似光流，在后面的一些论文里也被用于特征使用。</p>
+</li>
+<li>
+<p>NTURGB+D、HDM05的SOTA</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="2"><img src="https://blog.bangwhe.com/post-images/1632475098795.png" alt="" loading="lazy"></figure>
+<h2 id="richly-activated-graph-convolutional-network-for-action-recognition-with-incomplete-skeletons"><a href="https://arxiv.org/pdf/1909.05704v1.pdf">Richly Activated Graph Convolutional Network for Action Recognition with Incomplete Skeletons</a></h2>
+<blockquote>
+<p>However, in real scenarios, it is prone to capture incomplete and noisy skeletons, which will deteriorate the performance of traditional models.</p>
+</blockquote>
+<p>期刊会议及发布时间：ICIP，Arxiv 2019-09</p>
+<p>开源地址：<a href="https://github.com/yfsong0709/RA-GCNv1">v1</a>，<a href="https://github.com/yfsong0709/RA-GCNv2">v2</a>，第二版增加了部分内容。</p>
+<p>贡献点：</p>
+<ul>
+<li>构建了一个多流神经网络，后一个流使用来自前一个流构成的掩码矩阵，强迫后一个流学习前一个流之外的关键点信息，缓解了<strong>关键点阻挡</strong>造成的识别困难</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="3"><img src="https://blog.bangwhe.com/post-images/1632475111093.png" alt="" loading="lazy"></figure>
+<h2 id="graph-cnns-with-motif-and-variable-temporal-block-for-skeleton-based-action-recognition"><a href="http://geometrylearning.com/paper/Graph_CNN.pdf">Graph CNNs with Motif and Variable Temporal Block for Skeleton-based Action Recognition</a></h2>
+<blockquote>
+<p>Conventional graph convolution methods for modeling skeleton structure consider only physically connected neighbors of each joint, and the joints of the same type, thus failing to capture high-order information.</p>
+</blockquote>
+<p>期刊会议及发布时间：AAAI，2019</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">△</mi></mrow><annotation encoding="application/x-tex">\triangle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">△</span></span></span></span></p>
+<p>开源地址：<a href="https://github.com/wenyh1616/motif-stgcn">motif-stgcn</a></p>
+<p>贡献点：</p>
+<ul>
+<li>
+<p>提出了motif-stgcn用于对空域中的人体关键点的高维信息进行建模</p>
+</li>
+<li>
+<p>提出了VTDB（variable temporal dense block）来捕获多范围的局部时间结构</p>
+</li>
+<li>
+<p>提出了一个非局部加强块，以在时间上下文中构建全局依赖关系</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="4"><img src="https://blog.bangwhe.com/post-images/1632475119341.png" alt="" loading="lazy"></figure>
+<h2 id="an-attention-enhanced-graph-convolutional-lstm-network-for-skeleton-based-action-recognition"><a href="https://arxiv.org/pdf/1902.09130.pdf">An Attention Enhanced Graph Convolutional LSTM Network for Skeleton-Based Action Recognition</a></h2>
+<blockquote>
+<p>Nevertheless, how to effectively extract discriminative spatial and temporal features is still a challenging problem.</p>
+</blockquote>
+<p>期刊会议及其发表时间：CVPR，Arxiv 2019-02</p>
+<p>开源地址：暂无</p>
+<p>贡献点：</p>
+<ul>
+<li>
+<p>提出了一个全新的AGC-LSTM网络，是首个尝试图卷积LSTM的工作</p>
+</li>
+<li>
+<p>AGC-LSTM能够捕获到不同时空域上的特征，注意力机制用于强化关键节点的特征</p>
+</li>
+<li>
+<p>时间层级架构可用于提高学习高级时空特征的学习能力，并能够降低计算成本</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="5"><img src="https://blog.bangwhe.com/post-images/1632475127169.png" alt="" loading="lazy"></figure>
+<h2 id="actional-structural-graph-convolutional-networks-for-skeleton-based-action-recognition"><a href="http://openaccess.thecvf.com/content_CVPR_2019/papers/Shi_Two-Stream_Adaptive_Graph_Convolutional_Networks_for_Skeleton-Based_Action_Recognition_CVPR_2019_paper.pdf">Actional-Structural Graph Convolutional Networks for Skeleton-based Action Recognition</a></h2>
+<p>会议及时间：CVPR，2019</p>
+<p>开源地址：<a href="https://github.com/limaosen0/AS-GCN">AS-GCN</a></p>
+<p>贡献点：</p>
+<ul>
+<li>
+<p>提出了**<code>A-link</code>推理模块**（AIM）以捕获特定运动中存在的隐形行为（关键点）连接，与结构（关键点）连接共同组成了广义骨架图。<strong>模型自动学习连接</strong></p>
+</li>
+<li>
+<p>提出了<strong>运动-结构图卷积网络</strong>（AS-GCN），以在多图的基础上捕获可用的时间与空间信息</p>
+</li>
+<li>
+<p>引入了额外的<strong>未来动作预测头模块</strong>以预测未来动作，通过捕获更多的细节模式，提高了识别表现力</p>
+</li>
+<li>
+<p>SOTA表现，同时还能预测未来的关节动作</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="6"><img src="https://blog.bangwhe.com/post-images/1632490572640.png" alt="" loading="lazy"></figure>
+<h2 id="two-stream-adaptive-graph-convolutional-networks-for-skeleton-based-action-recognition"><a href="http://openaccess.thecvf.com/content_CVPR_2019/papers/Shi_Two-Stream_Adaptive_Graph_Convolutional_Networks_for_Skeleton-Based_Action_Recognition_CVPR_2019_paper.pdf">Two-Stream Adaptive Graph Convolutional Networks for Skeleton-Based Action Recognition</a></h2>
+<p>会议及时间：CVPR，2019</p>
+<p>开源地址：<a href="https://github.com/lshiwjx/2s-AGCN">2s-AGCN</a></p>
+<p>贡献点：</p>
+<ul>
+<li>
+<p>提出了一个<strong>自适应的图卷积网络</strong>，在端到端的环境下，针对不同的GCN层和骨架样本能够自适应地学习图的拓扑结构，能更好地适应GCN的识别任务</p>
+</li>
+<li>
+<p><strong>显性地建模了骨架的二维信息</strong>（节点的运动坐标差），与一维信息一起，组成了一个双流结构，提高了模型的表现力</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="7"><img src="https://blog.bangwhe.com/post-images/1632490624010.png" alt="" loading="lazy"></figure>
+<h2 id="skeleton-based-action-recognition-with-directed-graph-neural-networks"><a href="http://openaccess.thecvf.com/content_CVPR_2019/papers/Shi_Skeleton-Based_Action_Recognition_With_Directed_Graph_Neural_Networks_CVPR_2019_paper.pdf"> Skeleton-Based Action Recognition With Directed Graph Neural Networks</a></h2>
+<blockquote>
+<p>In this work, we represent the skeleton data as a directed acyclic graph (DAG) based on the kinematic dependency between the joints and bones in the natural human body.</p>
+</blockquote>
+<p>会议及时间：CVPR，2019</p>
+<p>开源地址：<a href="https://github.com/kenziyuliu/DGNN-PyTorch">unofficial-DGNN-PyTorch</a></p>
+<p>贡献点：</p>
+<ul>
+<li>
+<p><strong>首个</strong>将骨架数据表征为<strong>有向无环图</strong>以建模<strong>关键点和骨头</strong>之间的关系的工作，新颖的有向图神经网络来捕获动作识别任务中的关系</p>
+</li>
+<li>
+<p><strong>自适应地学习图结构</strong>，在训练过程中自动更新，可以更好地适应识别目标</p>
+</li>
+<li>
+<p>提取连续帧之间的运动信息进行时间信息建模，在最终的识别任务中，空间信息和运动信息被输入到一个双流框架中。</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="8"><img src="https://blog.bangwhe.com/post-images/1632490637555.png" alt="" loading="lazy"></figure>
+<h2 id="spatial-residual-layer-and-dense-connection-block-enhanced-spatial-temporal-graph-convolutional-network-for-skeleton-based-action-recognition"><a href="http://openaccess.thecvf.com/content_ICCVW_2019/papers/SGRL/Wu_Spatial_Residual_Layer_and_Dense_Connection_Block_Enhanced_Spatial_Temporal_ICCVW_2019_paper.pdf">Spatial Residual Layer and Dense Connection Block Enhanced Spatial Temporal Graph Convolutional Network for Skeleton-Based Action Recognition</a></h2>
+<p>会议及时间：ICCV Workshop， 2019</p>
+<p>开源地址：暂无</p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了<strong>交叉域空间残差层</strong>（cross-domain spatial residual layer）以捕获时空信息</p>
+</li>
+<li>
+<p>提出了针对GCN的<strong>深度连接模块</strong>以学习全局信息并提高特征的健壮性</p>
+</li>
+<li>
+<p>性能相当或超过SOTA方法</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="9"><img src="https://blog.bangwhe.com/post-images/1632490645218.png" alt="" loading="lazy"></figure>
+<h2 id="bayesian-graph-convolutional-lstm-for-skeleton-based-action-recognition"><a href="http://openaccess.thecvf.com/content_ICCV_2019/papers/Zhao_Bayesian_Graph_Convolution_LSTM_for_Skeleton_Based_Action_Recognition_ICCV_2019_paper.pdf">Bayesian Graph Convolutional LSTM for Skeleton Based Action Recognition</a></h2>
+<p>会议及时间：ICCV，2019</p>
+<p>开源地址：暂无</p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了一个<strong>BNN（Bayesian neural network）网络</strong>，结合了图卷积和LSTM来建模骨架数据中的复杂的动力学问题。（没有使用交叉熵做损失函数，用贝叶斯函数来做损失函数和优化器）</p>
+</li>
+<li>
+<p>介绍了一个对抗式的先验器来对模型参数进行正则化</p>
+</li>
+<li>
+<p>构建了一个贝叶斯推理框架，提高健壮性和泛化性</p>
+</li>
+</ul>
+<p>指标：</p>
+<p>指标比较低，但是健壮性较强。</p>
+<figure data-type="image" tabindex="10"><img src="https://blog.bangwhe.com/post-images/1632490655193.png" alt="" loading="lazy"></figure>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#spatial-temporal-graph-convolutional-networks-for-skeleton-based-action-recognition">Spatial Temporal Graph Convolutional Networks for Skeleton-Based Action Recognition</a></li>
+<li><a href="#part-based-graph-convolutional-network-for-action-recognition-bmvc-2018">Part-based Graph Convolutional Network for Action Recognition (BMVC 2018)</a></li>
+<li><a href="#richly-activated-graph-convolutional-network-for-action-recognition-with-incomplete-skeletons">Richly Activated Graph Convolutional Network for Action Recognition with Incomplete Skeletons</a></li>
+<li><a href="#graph-cnns-with-motif-and-variable-temporal-block-for-skeleton-based-action-recognition">Graph CNNs with Motif and Variable Temporal Block for Skeleton-based Action Recognition</a></li>
+<li><a href="#an-attention-enhanced-graph-convolutional-lstm-network-for-skeleton-based-action-recognition">An Attention Enhanced Graph Convolutional LSTM Network for Skeleton-Based Action Recognition</a></li>
+<li><a href="#actional-structural-graph-convolutional-networks-for-skeleton-based-action-recognition">Actional-Structural Graph Convolutional Networks for Skeleton-based Action Recognition</a></li>
+<li><a href="#two-stream-adaptive-graph-convolutional-networks-for-skeleton-based-action-recognition">Two-Stream Adaptive Graph Convolutional Networks for Skeleton-Based Action Recognition</a></li>
+<li><a href="#skeleton-based-action-recognition-with-directed-graph-neural-networks"> Skeleton-Based Action Recognition With Directed Graph Neural Networks</a></li>
+<li><a href="#spatial-residual-layer-and-dense-connection-block-enhanced-spatial-temporal-graph-convolutional-network-for-skeleton-based-action-recognition">Spatial Residual Layer and Dense Connection Block Enhanced Spatial Temporal Graph Convolutional Network for Skeleton-Based Action Recognition</a></li>
+<li><a href="#bayesian-graph-convolutional-lstm-for-skeleton-based-action-recognition">Bayesian Graph Convolutional LSTM for Skeleton Based Action Recognition</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/cv2-wrapaffine-quan-jie-xi/">
+              <h3 class="post-title">
+                cv2 warpaffine 全解析
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

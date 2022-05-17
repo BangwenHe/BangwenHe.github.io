@@ -1,0 +1,443 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>gnn ar 2020 | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="gnn ar 2020 | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="前面是与2019年相关的，本篇主要介绍2020年以来的动作识别领域的GNN算法。
+
+introduction
+绝大部分的paper中提到骨架数据都是直接使用设备获取的3D关键点，基于2D关键点的动作识别很少，主要是因为2D是从3D世界坐标系..." />
+    <meta name="keywords" content="paper,action recognition" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              gnn ar 2020
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-09-27
+              </span>
+              <span>
+                11 min read
+              </span>
+              
+                <a href="https://blog.bangwhe.com/tag/ph152k7kZ/" class="post-tag">
+                  # paper
+                </a>
+              
+                <a href="https://blog.bangwhe.com/tag/cwRdH50XC/" class="post-tag">
+                  # action recognition
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>前面是与2019年相关的，本篇主要介绍2020年以来的动作识别领域的GNN算法。</p>
+<!-- more -->
+<h2 id="introduction">introduction</h2>
+<p>绝大部分的paper中提到骨架数据都是直接使用设备获取的3D关键点，基于2D关键点的动作识别很少，主要是因为2D是从3D世界坐标系投影到相机的2D坐标系中，中间存在信息的丢失，这部分深度（第三维）数据对于动作识别来说可能是很重要的。大部分的数据集，例如NTU RGBD （60和120）、Kinetics、SYSU都是通过设备获取的3D关键点信息。</p>
+<p>如果放到手机上，从摄像头获取的基本上是2D数据，可能会对模型产生影响。</p>
+<h2 id="jolo-gcn-mining-joint-centered-light-weight-information-for-skeleton-based-action-recognition"><a href="https://arxiv.org/abs/2011.07787">JOLO-GCN: Mining Joint-Centered Light-Weight Information for Skeleton-Based Action Recognition</a></h2>
+<p>会议及时间：WACV 2021，Arxiv 2020-11</p>
+<p>开源地址：暂无</p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了一个崭新的机制来表达每个关键点周围的视觉信息，称为<strong>JFP</strong>（Joint-aligned optical Flow Patches），它包含丰富的局部微体运动线索，且格式相对稀疏。</p>
+</li>
+<li>
+<p>展示了JOLO-GCN能够同时使用来自JFP序列的的局部运动信息，以及来自骨架序列的全局运动信息（<strong>多模态</strong>）。较之单模态的基线，模型取得了显著的准确率提升。</p>
+</li>
+<li>
+<p>在三个大型人类识别数据集上做了更多的拓展实验，我们的方法在这些数据集上取得了SOTA的表现</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="1"><img src="https://blog.bangwhe.com/post-images/1632747969143.png" alt="" loading="lazy"></figure>
+<h2 id="spatio-temporal-inception-graph-convolutional-for-skeleton-based-action-recognition"><a href="https://dl.acm.org/doi/pdf/10.1145/3394171.3413666">Spatio-Temporal Inception Graph Convolutional for Skeleton-Based Action Recognition</a></h2>
+<p>会议及时间：ACM-MM 2020</p>
+<p>开源地址：暂无</p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了一个图卷积骨架结构，<strong>Spatio-Temporal Inception Graph Convolution Network</strong>（时空初始图卷积网络）。克服了先进方法在提取和融合不同尺度及不同路径上的缺点。（<code>Inception</code>网络是Google在ResNet之前提出的，因为梯度消失，当时无法堆叠过深的网络，它层数不深，但是每个<code>Inception</code>模块有很多并列的模块来提高获取特征的能力。Abstract中指出了此前的一些方法着重于图的拓扑结构的获取，但是一旦拓扑结构生成了，那么模型每层中就只有一种尺度和一种变换的特征。）</p>
+</li>
+<li>
+<p>克服了CNN方法和GCN方法卷积方法之间的gap，我们重新设计了在GCN上的「<strong>分离-转换-融合</strong>」方法对于骨架序列处理。（基础的分离-转换-融合方法类似一个神经元，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>C</mi></msubsup><msub><mi>w</mi><mi>i</mi></msub><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">y=\sum_{i=1}^C w_i x_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.2809409999999999em;vertical-align:-0.29971000000000003em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.981231em;"><span style="top:-2.40029em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.29971000000000003em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，按通道分离，乘权重线性变换，相加融合。文章中的这个思想就体现在Inception模块的设计上。）</p>
+</li>
+<li>
+<p>与简单地创建更宽的 GCN 相比，<strong>增加转换集的数量</strong>是一种更有效的提高准确性的方法。 这一见解将有助于迭代基于 GCN 的主干以进行时空序列分析。</p>
+</li>
+<li>
+<p>在基于骨架的动作识别的两个大规模数据集上，所提出的网络在参数和FLOPs较低的情况下，显著优于SOTA方法。</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="2"><img src="https://blog.bangwhe.com/post-images/1632748234219.png" alt="" loading="lazy"></figure>
+<h2 id="stronger-faster-and-more-explainable-a-graph-convolutional-baseline-for-skeleton-based-action-recognition"><a href="http://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123690528.pdf">Stronger, Faster and More Explainable: A Graph Convolutional Baseline for Skeleton-based Action Recognition</a></h2>
+<p>会议及时间：ACM-MM 2020</p>
+<p>开源地址：<a href="https://github.com/yfsong0709/ResGCNv1">ResGCNv1</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>早期的融合多分支架构被设计用于从原始骨架数据中获得的<strong>三个单独的时空特征序列</strong>（关节、速度和骨骼）中获取输入，这使得基线模型能够提取足够的结构特征。（多模态信息）</p>
+</li>
+<li>
+<p>为了进一步提高模型的效率，在 GCN 中引入了残差瓶颈结构，其中残差连接降低了模型训练的难度，瓶颈结构降低了参数调整和模型推理的计算成本。</p>
+</li>
+<li>
+<p>为了进一步提高特征的识别能力，提出了一种局部注意块方法来计算人体不同部位的注意权重，同时通过类激活图的可视化来解释分类结果。</p>
+</li>
+<li>
+<p>在NTU RGB+D 60和120两个大型骨架动作数据集上进行了大量实验，PA-ResGCN可以实现SOTA性能，而具有瓶颈结构的ResGCN在参数较少的情况下获得了较高的性能</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="3"><img src="https://blog.bangwhe.com/post-images/1632748248559.png" alt="" loading="lazy"></figure>
+<h2 id="decoupling-gcn-with-dropgraph-module-for-skeleton-based-action-recognition"><a href="http://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123690528.pdf">Decoupling GCN with DropGraph Module for Skeleton-Based Action Recognition</a></h2>
+<blockquote>
+<p>In this paper, we rethink the spatial aggregation in existing GCN-based skeleton action recognition methods and discover that they are limited by coupling aggregation mechanism.</p>
+</blockquote>
+<p>会议及时间：ECCV 2020</p>
+<p>开源地址：<a href="https://github.com/kchengiva/DecoupleGCN-DropGraph">DecoupleGCN-DropGraph</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了DC-GCN，它能有效地增强图卷积的表达能力，同时没有额外的计算消耗</p>
+</li>
+<li>
+<p>提出了ADG，它能有效的缓解GCN中的过拟合问题</p>
+</li>
+<li>
+<p>该方法以更少的计算成本超过了最先进的方法</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="4"><img src="https://blog.bangwhe.com/post-images/1632748263212.png" alt="" loading="lazy"></figure>
+<h2 id="learning-graph-convolutional-network-for-skeleton-based-human-action-recognition-by-neural-searching"><a href="https://arxiv.org/pdf/1911.04131v1.pdf">Learning Graph Convolutional Network for Skeleton-based Human Action Recognition by Neural Searching</a></h2>
+<p>会议及时间：AAAI 2020，Arxiv 2019-11</p>
+<p>开源地址：<a href="https://github.com/xiaoiker/GCN-NAS">GCN-NAS</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>突破了GCN固定图的局限性，首次使用基于NAS的动作识别的图卷积架构。（NAS搜索<strong>动态骨架结构</strong>）</p>
+</li>
+<li>
+<p>作者从两个方面<strong>丰富了GCN的搜索空间</strong>。首先，在各种时空图模块的基础上提供了多个动态图子结构。其次，利用切比雪夫多项式逼近建立高阶连接，扩大了GCN卷积的感受野。</p>
+</li>
+<li>
+<p>设计了一种新的<strong>基于进化的NAS搜索策略</strong>，该策略具有采样效率和内存效率</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="5"><img src="https://blog.bangwhe.com/post-images/1632748274370.png" alt="" loading="lazy"></figure>
+<h2 id="dynamic-gcn-context-enriched-topology-learning-for-skeleton-based-action-recognition"><a href="https://arxiv.org/pdf/2007.14690.pdf"> Dynamic GCN: Context-enriched Topology Learning for Skeleton-based Action Recognition</a></h2>
+<blockquote>
+<p>However, the dependencies among skeleton joints of different samples vary, especially when they are performing different actions.</p>
+</blockquote>
+<p>会议及时间：ACM-MM 2020，Arxiv 2020-07</p>
+<p>开源地址：暂无</p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了动态GCN框架，结合了GCN的拓扑学习优点和CNN的特征学习能力</p>
+</li>
+<li>
+<p>介绍了一个轻量级的上下文编码网络（context-encoding network），它能够在全局范围上学习富有上下文的动态骨架拓扑结构</p>
+</li>
+<li>
+<p>探讨了三个可替代的上下文建模模型，可以作为未来图拓扑学习research的指导</p>
+</li>
+<li>
+<p>本文模型在三个大型骨架动作识别数据集上超出了SOTA模型的表现</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="6"><img src="https://blog.bangwhe.com/post-images/1632748283942.png" alt="" loading="lazy"></figure>
+<h2 id="disentangling-and-unifying-graph-convolutions-for-skeleton-based-action-recognition"><a href="https://arxiv.org/pdf/2003.14111.pdf">Disentangling and Unifying Graph Convolutions for Skeleton-Based Action Recognition</a></h2>
+<blockquote>
+<p>However, this formulation for GCN suffers from the biased weighting problem, where the existence of cyclic walks on undirected graphs means that edge weights will be biased towards closer nodes against further nodes.</p>
+</blockquote>
+<p>会议及时间：CVPR 2020，Arxiv 2020-03</p>
+<p>开源地址：<a href="https://github.com/kenziyuliu/ms-g3d">ms-g3d</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了一个解纠缠的多尺度聚合方案，它消除了来自不同领域的节点特征之间的冗余连接，使得强大的多尺度聚合器能够有效的捕获人体骨架图范围内的关键点连接关系</p>
+</li>
+<li>
+<p>提出了一个统一的时空图卷积算子（G3D），促进了时空内的信息流动，帮助有效的特征学习</p>
+</li>
+<li>
+<p>联合结纠缠多尺度聚合方案和G3D，给特征提取器（MS-G3D）提供了在时空范围内的多尺度感受野。时空特征的多尺度聚集进一步提高了模型的性能。</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="7"><img src="https://blog.bangwhe.com/post-images/1632748293616.png" alt="" loading="lazy"></figure>
+<h2 id="semantics-guided-neural-networks-for-efficient-skeleton-based-human-action-recognition"><a href="https://arxiv.org/pdf/1904.01189.pdf">Semantics-Guided Neural Networks for Efficient Skeleton-Based Human Action Recognition</a></h2>
+<blockquote>
+<p>Skeleton-based human action recognition has attracted great interest thanks to the easy accessibility of the human skeleton data.</p>
+</blockquote>
+<p>会议及时间：CVPR 2020，Arxiv 2019-04</p>
+<p>开源地址：<a href="https://github.com/microsoft/SGN">SGN</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>显式地探索联合语义(框架索引和关节类型)用于基于骨架的动作识别。以往的研究忽视了语义的重要性，依赖于高度复杂的深度网络进行动作识别。</p>
+</li>
+<li>
+<p>提出了一个语义引导的神经网络(SGN)，以在联合层次和框架层次上开发空间和时间的相关性。</p>
+</li>
+<li>
+<p>开发了一个轻量级的强基线，它比以前的大多数方法更强大。希望这个强基线能对基于骨架的动作识别研究有所帮助</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="8"><img src="https://blog.bangwhe.com/post-images/1632748302084.png" alt="" loading="lazy"></figure>
+<h2 id="skeleton-based-action-recognition-with-shift-graph-convolutional-network"><a href="http://openaccess.thecvf.com/content_CVPR_2020/papers/Cheng_Skeleton-Based_Action_Recognition_With_Shift_Graph_Convolutional_Network_CVPR_2020_paper.pdf">Skeleton-Based Action Recognition With Shift Graph Convolutional Network</a></h2>
+<blockquote>
+<p>借鉴了depthwise conv和pointwise conv的思想，由于图卷积与conv不同，所以文章中采用的是邻接矩阵移位的方法实现的。</p>
+</blockquote>
+<p>会议及时间：CVPR 2020</p>
+<p>开源地址： <a href="https://github.com/kchengiva/Shift-GCN">Shift-GCN</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了两种空间移位图运算来进行骨骼图的建模。非局部空间移位图运算具有较高的计算效率和较强的性能。</p>
+</li>
+<li>
+<p>提出了两种时间骨架图建模的时间移位图运算。自适应时间移位图运算可以自适应地调整感受野，在计算复杂度低的情况下优于常规时间模型。</p>
+</li>
+<li>
+<p>在三个骨架动作识别数据集上，所提出的shift-GCN超过了此前的SOTA方法，同时<strong>计算消耗降低了10倍</strong>。</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="9"><img src="https://blog.bangwhe.com/post-images/1632748309848.png" alt="" loading="lazy"></figure>
+<h2 id="context-aware-graph-convolution-for-skeleton-based-action-recognition"><a href="http://openaccess.thecvf.com/content_CVPR_2020/papers/Zhang_Context_Aware_Graph_Convolution_for_Skeleton-Based_Action_Recognition_CVPR_2020_paper.pdf">Context Aware Graph Convolution for Skeleton-Based Action Recognition</a></h2>
+<p>会议及时间：CVPR 2020</p>
+<p>开源地址：暂无</p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了一种上下文感知图卷积，以利用所有来自其他关节点的信息来丰富每个关节点的局部响应信息。同时设计了不同的方法来计算不同关节点之间的相关性，可直接嵌入到图卷积过程中</p>
+</li>
+<li>
+<p>提出了高版本模型，该模型使用更多抽象进行相关性测量和上下文计算。</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="10"><img src="https://blog.bangwhe.com/post-images/1632748316923.png" alt="" loading="lazy"></figure>
+<h2 id="learning-multi-view-interactional-skeleton-graph-for-action-recognition"><a href="https://ieeexplore.ieee.org/abstract/document/9234715">Learning Multi-View Interactional Skeleton Graph for Action Recognition</a></h2>
+<p>会议及时间：TAPMI 2020</p>
+<p>开源地址：<a href="https://github.com/niais/mv-ignet">mv-ignet</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>一个新颖的多视角动作识别方案，协同地<strong>利用不同骨架的拓扑结构</strong>，而不是在相机视角中获取互补的动作特征，这是一个通用的基于图的方法。（如果放到手机上，这种多骨架的拓扑结构的确能获取更多的特征信息）</p>
+</li>
+<li>
+<p>一个统一多层级建模架构，能够捕获多层级的空间骨架特征</p>
+</li>
+<li>
+<p>一种简单而高效的 SPG-Conv，不同于 GCN，它利用多个参数图同时学习关系和权重。 它具有强大的特征提取和图自适应能力，同时大大降低了计算成本。</p>
+</li>
+<li>
+<p>GCA 模块通过直接操作 SPG-Conv 权重而不是输入特征来“选择”适当的输入相关交互。</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="11"><img src="https://blog.bangwhe.com/post-images/1632748328763.png" alt="" loading="lazy"></figure>
+<h2 id="channel-wise-topology-refinement-graph-convolution-for-skeleton-based-action-recognition"><a href="https://arxiv.org/pdf/2107.12213.pdf">Channel-wise Topology Refinement Graph Convolution for Skeleton-Based Action Recognition</a></h2>
+<p>会议及期刊：ICCV 2021，Arxiv 2021-07</p>
+<p>开源地址：<a href="https://github.com/Uason-Chen/CTR-GCN">CTR-GCN</a></p>
+<p>贡献：</p>
+<ul>
+<li>
+<p>提出了一个通道式的拓扑微调图卷积，它能够以微调的方式动态的建模每个通道的拓扑结构，生成更灵活和有效的连接建模</p>
+</li>
+<li>
+<p>数学上统一了基于骨架的动作识别中现有的图卷积的形式，并发现了CTR-GC放松了其他图卷积的显示，提供了更强大的图建模能力</p>
+</li>
+<li>
+<p>拓展实验结果高亮了channel-wise拓扑结构和微调方法，所提出的CTR-GCN超出了目前SOTA方法的建模能力</p>
+</li>
+</ul>
+<p>指标：</p>
+<figure data-type="image" tabindex="12"><img src="https://blog.bangwhe.com/post-images/1632748338169.png" alt="" loading="lazy"></figure>
+<h2 id="revisiting-skeleton-based-action-recognition"><a href="https://arxiv.org/pdf/2104.13586v1.pdf">Revisiting Skeleton-based Action Recognition</a></h2>
+<p>会议及时间：Arxiv 2021-04</p>
+<p>开源地址：<a href="https://github.com/open-mmlab/mmaction2/blob/master/configs/skeleton/posec3d/README.md">PoseC3D</a></p>
+<p>论文并不是与GNN相关的，它使用的是2D heatmap，通过2D keypoints heatmap堆叠成3D进行动作识别。目前，它是NTU RGBD上指标最高的。它提出了几点GNN存在的缺陷：</p>
+<ul>
+<li>
+<p>健壮性：GCN需要的输入是关键点坐标，错误的坐标可能会导致不同的分类结果。</p>
+</li>
+<li>
+<p>协同性：多模态可以取得更好的表现效果，例如RGB、光流、骨架，这些都是可互补的。但是骨架的图表征是的它很难与其它的模态混合，特别是在早期和低阶段。</p>
+</li>
+<li>
+<p>可缩放性：GCN将每个关节点视为一个图节点，因此 GCN 的复杂性与人数呈线性关系，限制了其在涉及多人的任务中的适用性，例如群体活动识别。</p>
+</li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#introduction">introduction</a></li>
+<li><a href="#jolo-gcn-mining-joint-centered-light-weight-information-for-skeleton-based-action-recognition">JOLO-GCN: Mining Joint-Centered Light-Weight Information for Skeleton-Based Action Recognition</a></li>
+<li><a href="#spatio-temporal-inception-graph-convolutional-for-skeleton-based-action-recognition">Spatio-Temporal Inception Graph Convolutional for Skeleton-Based Action Recognition</a></li>
+<li><a href="#stronger-faster-and-more-explainable-a-graph-convolutional-baseline-for-skeleton-based-action-recognition">Stronger, Faster and More Explainable: A Graph Convolutional Baseline for Skeleton-based Action Recognition</a></li>
+<li><a href="#decoupling-gcn-with-dropgraph-module-for-skeleton-based-action-recognition">Decoupling GCN with DropGraph Module for Skeleton-Based Action Recognition</a></li>
+<li><a href="#learning-graph-convolutional-network-for-skeleton-based-human-action-recognition-by-neural-searching">Learning Graph Convolutional Network for Skeleton-based Human Action Recognition by Neural Searching</a></li>
+<li><a href="#dynamic-gcn-context-enriched-topology-learning-for-skeleton-based-action-recognition"> Dynamic GCN: Context-enriched Topology Learning for Skeleton-based Action Recognition</a></li>
+<li><a href="#disentangling-and-unifying-graph-convolutions-for-skeleton-based-action-recognition">Disentangling and Unifying Graph Convolutions for Skeleton-Based Action Recognition</a></li>
+<li><a href="#semantics-guided-neural-networks-for-efficient-skeleton-based-human-action-recognition">Semantics-Guided Neural Networks for Efficient Skeleton-Based Human Action Recognition</a></li>
+<li><a href="#skeleton-based-action-recognition-with-shift-graph-convolutional-network">Skeleton-Based Action Recognition With Shift Graph Convolutional Network</a></li>
+<li><a href="#context-aware-graph-convolution-for-skeleton-based-action-recognition">Context Aware Graph Convolution for Skeleton-Based Action Recognition</a></li>
+<li><a href="#learning-multi-view-interactional-skeleton-graph-for-action-recognition">Learning Multi-View Interactional Skeleton Graph for Action Recognition</a></li>
+<li><a href="#channel-wise-topology-refinement-graph-convolution-for-skeleton-based-action-recognition">Channel-wise Topology Refinement Graph Convolution for Skeleton-Based Action Recognition</a></li>
+<li><a href="#revisiting-skeleton-based-action-recognition">Revisiting Skeleton-based Action Recognition</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/hrnet-can-shu/">
+              <h3 class="post-title">
+                HRNet 参数
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

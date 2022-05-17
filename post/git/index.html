@@ -1,0 +1,313 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Git | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="Git | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="git是一个分布式版本控制系统，可以用来控制各种的文件系统版本，对程序员来说，最重的就是自己的代码产出。本文主要参考廖雪峰的git教程。git不等于github，github只是使用最广泛的同性交友网站远程代码托管平台。
+git本地文档
+查..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Git
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-11-19
+              </span>
+              <span>
+                7 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>git是一个分布式版本控制系统，可以用来控制各种的文件系统版本，对程序员来说，最重的就是自己的代码产出。本文主要参考廖雪峰的git教程。git不等于github，github只是使用最广泛的<s>同性交友网站</s>远程代码托管平台。</p>
+<p><a href="file:///C:/Users/TCLAB/scoop/apps/git/2.32.0.windows.1/mingw64/share/doc/git-doc/">git本地文档</a></p>
+<p>查看git状态：</p>
+<pre><code class="language-bash">git status
+</code></pre>
+<p>可以查看未提交、暂存区、已提交的各种文件状态，是在命令行获取文件状态的指令。</p>
+<h2 id="连接github">连接github</h2>
+<p>git连接远程仓库github有两种方式，一种是SSH的公私钥认证方式，一种是github的token认证（github使用token作为密码来认证）。</p>
+<h3 id="ssh公私钥">SSH公私钥</h3>
+<p>具体可参考github官方的ssh登录指南：<a href="https://docs.github.com/cn/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent">生成新 SSH 密钥并添加到 ssh-agent</a>，<a href="https://docs.github.com/cn/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account">新增 SSH 密钥到 GitHub 帐户</a>。通过上面的两步就可以添加一个新的SSH公私钥到github账户中。</p>
+<p>当添加了公私钥到github账户中后，可以通过<code>ssh git@github.com</code>的方式来测试公私钥有没有正确地匹配上，一个正确的输出应该是下面这样的形式：</p>
+<pre><code>Hi ${username}! You've successfully authenticated, but GitHub does not provide shell access.
+Connection to github.com closed.
+</code></pre>
+<p>如果出现<code>git@github.com: Permission denied (publickey).</code>，那就是公钥匹配错了。可通过<code>ssh -vT git@github.com</code>进行debug，主要观察<code>debug1: identity file C:\\Users\\${username}/.ssh/id_rsa type 0</code>，如果末尾是<code>0</code>，说明文件存在，匹配正确，可以登录；如果是<code>-1</code>，说明不存在，登录失败。登录失败后，可以将对应的文件名改成debug输出中的文件名。例如，将<code>github.pub</code>公钥文件名和<code>github</code>私钥文件名，改成<code>id_rsa.pub</code>和<code>id_rsa</code>，这样就可以正常登录了。</p>
+<p>因为ssh默认读取的是<code>id_rsa</code>私钥，所以在上面把<code>github</code>私钥重命名成<code>id_rsa</code>就可以使用了。但是如果需要同时连接gitee和github，那就不能只通过重命名来解决了。需要使用<code>ssh-add</code>把私钥添加到<code>ssh</code>将会读取的文件里，添加完之后，会发现debug过程中，ssh会提供gitee对应的私钥了。</p>
+<h3 id="token登录">Token登录</h3>
+<p>具体可参考github官方指南：<a href="https://docs.github.com/cn/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">创建个人访问令牌</a></p>
+<p>token登陆相当于密码，每次都需要输入。当clone、push、pull一个私有仓库或者无访问权限的仓库时，就会弹出命令行登录界面。如下：</p>
+<pre><code>Username for 'https://github.com': ${name}
+Password for 'https://${name}@github.com':
+</code></pre>
+<p>由于每次与远程的操作都需要使用token进行访问，所以最好将token保存在一个安全的文件里，避免遗忘。</p>
+<h2 id="文件控制">文件控制</h2>
+<h3 id="分区">分区</h3>
+<p>git的版本内容全部保存在<code>.git</code>文件夹中，分为多个部分，主要是两块，一个是暂存区，另一个是分支区，例如main、master分支等。</p>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/img_convert/cc3510e8f32578ed0f39756e298749de.png" alt="" loading="lazy"></figure>
+<p>添加文件：</p>
+<pre><code class="language-bash">git add ${files}
+</code></pre>
+<p>提交文件：</p>
+<pre><code class="language-bash">git commit -m ${messages}
+</code></pre>
+<p>通过这两个命令之后，这个文件的版本就被git管理了，后续可以通过各种操作进行文件版本的前进和回退，只要被<code>commit</code>过且没有被<code>git rm</code>过的文件，都可以从git版本库中恢复成<code>commit</code>时的版本。</p>
+<h3 id="版本控制">版本控制</h3>
+<p>查看提交历史：</p>
+<pre><code class="language-bash"># 查看详细历史
+git log
+
+# 以一行展示内容
+git log --pretty=oneline
+</code></pre>
+<p>查看操作历史：</p>
+<pre><code class="language-bash">git reflog
+</code></pre>
+<p>这两个历史操作可以获取各个提交时的commit id，通过id进行回滚。</p>
+<p>版本回滚：</p>
+<pre><code class="language-bash"># 回滚到前两次提交
+git reset --hard HEAD^^
+
+# 回滚到前七次
+git reset --hard HEAD~7
+
+# 根据提交记录回滚
+git reset --hard ${commit_id}
+</code></pre>
+<p><code>git reset</code>不仅可以撤销已提交的操作，可以撤销在暂存区内的文件。撤销操作：</p>
+<pre><code class="language-bash"># 撤销未暂存的文件
+git checkout -- ${file}
+git restore ${file}
+
+# 撤销已暂存的文件
+git reset HEAD ${file}
+git restore --staged ${file}
+</code></pre>
+<p>注意：如果上述的修改没有被提交，那么经过撤销之后，所有的修改会丢失。</p>
+<p>删除文件：</p>
+<pre><code class="language-bash"># 直接删除并保存到暂存区
+git rm ${file}
+
+# 在磁盘上删除但未保存到git暂存区
+rm ${file}
+</code></pre>
+<h2 id="远程仓库">远程仓库</h2>
+<p>远程仓库主要涉及到了一个指令<code>git remote</code>，详细的操作可以通过<code>git remote --help</code>查看。下面是简单的使用：</p>
+<pre><code class="language-bash"># 增加仓库
+git remote add ${name} ${uri}
+
+# 删除仓库
+git remote remove ${name}
+
+# 修改仓库
+git remote set-url ${name} ${uri}
+
+# 查看仓库
+git remote -v
+</code></pre>
+<p>注意：如果需要连接多个远程仓库，可以通过${name}设置不同的仓库。</p>
+<p>为了将代码同步到远程仓库上，需要使用<code>push</code>指令：</p>
+<pre><code class="language-bash">git push -u ${name} main
+</code></pre>
+<p>上述指令将本地的main分支推送到远程${name}的main分支上。</p>
+<h2 id="分支管理">分支管理</h2>
+<p>git的分支名可以理解为指针，不同的分支根据依赖会形成一个图结构，分支名指向这个图结构的其中某个节点。上文提到的<code>HEAD</code>也是一个指针，只是它永远指向目前工作区状态节点，<code>git reflog</code>可以理解为<code>HEAD</code>的历史操作记录。</p>
+<p>创建并切换分支：</p>
+<pre><code class="language-bash"># -b与-c就是创建分支
+git checkout -b ${branch}
+git switch -c ${branch}
+</code></pre>
+<p>由于<code>checkout</code>使用可能存在歧义，所以新版本中的git使用了<code>switch</code>作为分支管理的关键词。</p>
+<p>删除分支：</p>
+<pre><code class="language-bash">git branch -d ${branch}
+</code></pre>
+<p>注意：<code>checkout</code>和<code>switch</code>的<code>-d</code>参数是detach，会将HEAD从当前分支上分离出来，并不是删除分支。</p>
+<p>由于分支上可能存在某些需要的代码，我们需要将这部分代码合并到我们的工作分支上，使用<code>merge</code>进行分支合并。</p>
+<pre><code class="language-bash"># 合并指定分支到当前工作分支
+git merge ${branch}
+</code></pre>
+<p>但是git分支合并会存在冲突，所以git会在文件中生成合并冲突的提示，通知你进行代码的冲突修改。冲突后，文件中的显示如下：</p>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+Creating a new branch is quick &amp; simple.
+=======
+Creating a new branch is quick AND simple.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature1
+</code></pre>
+<p>在HEAD表示当前分支的内容，feature1表示feature1分支的内容，也就是要合并进工作区的代码。修改这两个部分，确定自己合并之后将要留下的代码。然后进行提交，git将会在这两个节点之后生成一个新的commit来表示这是merge后的。如下：</p>
+<pre><code>*   83fb02273eca5e49dfdb8d43f24c0029b4c99a3b (HEAD -&gt; feat1, main) feat: merge feature from feat1 branch
+|\
+| * 029d0af53f380bb24e53cbafb7fa327fcf9ee8df feat: add feature1
+* | d2d5f7cc076ce32aecee32ade471576f4c47a9a5 feat: add feature in main branch
+|/
+* e13ff21ecdbba5c88c1e6f5f151919de114a6e10 feat: add ignore file
+</code></pre>
+<h2 id="工作区暂存">工作区暂存</h2>
+<pre><code class="language-bash">git stash
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E8%BF%9E%E6%8E%A5github">连接github</a>
+<ul>
+<li><a href="#ssh%E5%85%AC%E7%A7%81%E9%92%A5">SSH公私钥</a></li>
+<li><a href="#token%E7%99%BB%E5%BD%95">Token登录</a></li>
+</ul>
+</li>
+<li><a href="#%E6%96%87%E4%BB%B6%E6%8E%A7%E5%88%B6">文件控制</a>
+<ul>
+<li><a href="#%E5%88%86%E5%8C%BA">分区</a></li>
+<li><a href="#%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6">版本控制</a></li>
+</ul>
+</li>
+<li><a href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93">远程仓库</a></li>
+<li><a href="#%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86">分支管理</a></li>
+<li><a href="#%E5%B7%A5%E4%BD%9C%E5%8C%BA%E6%9A%82%E5%AD%98">工作区暂存</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/tensorflow-freeze-graph/">
+              <h3 class="post-title">
+                tensorflow freeze graph
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,797 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HRNet 参数 | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="HRNet 参数 | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="命令行入口
+入口：tools/train.py
+
+train.py
+    # 读取命令行参数并保存至args
+    args = parse_args()
+    # 通过命令行参数更新cfg参数
+    # cfg保存了神经网络的训练..." />
+    <meta name="keywords" content="hrnet,code reading" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              HRNet 参数
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-09-26
+              </span>
+              <span>
+                18 min read
+              </span>
+              
+                <a href="https://blog.bangwhe.com/tag/uGYdiHjOY/" class="post-tag">
+                  # hrnet
+                </a>
+              
+                <a href="https://blog.bangwhe.com/tag/G5uMLfgAF9/" class="post-tag">
+                  # code reading
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="命令行入口">命令行入口</h2>
+<p>入口：tools/train.py</p>
+<!-- more -->
+<p><code>train.py</code></p>
+<pre><code class="language-python">    # 读取命令行参数并保存至args
+    args = parse_args()
+    # 通过命令行参数更新cfg参数
+    # cfg保存了神经网络的训练参数
+    update_config(cfg, args)
+</code></pre>
+<p><code>parse_args</code>提供了<code>--cfg</code>，<code>opts</code>，<code>--modelDir</code>，<code>--logDir</code>，<code>--dataDir</code>，<code>--prevModelDir</code>。直接在命令行中提供配置参数，<code>opts</code>提供配置参数，修改配置文件四者起到的作用是一样的。</p>
+<p><code>--cfg</code>：配置文件路径，必须提交的参数</p>
+<p><code>opts</code>：以<code>{A-Z}*.{A-Z}*</code>的格式提交的配置参数，可对所有参数进行修改</p>
+<p><code>update_config.py</code></p>
+<!--more-->
+<pre><code class="language-python">    # 使得配置参数可变, defrost-&gt;除霜
+    cfg.defrost()
+    # 从args.cfg提供的文件路径中读取配置参数(args.cfg是命令行添加的--cfg参数), 并与cfg变量合并
+    cfg.merge_from_file(args.cfg)
+    # 读取opts参数修改配置参数, 并与cfg变量合并
+    cfg.merge_from_list(args.opts)
+</code></pre>
+<p><code>cfg</code>是yacs.config.cfgNode变量，它将配置参数保存成树状结构，可通过成员变量访问方式访问其中的配置参数，例如<code>cfg.DATASET.ROOT</code>就是数据集根目录。下面是从文件中和命令行中读取并修改配置变量<code>cfg</code>。</p>
+<p>注意：<code>opts</code>会将所有出现在<code>{A-Z}*.{A-Z}*</code>后的参数全部归为<code>opts</code>，所以<code>--modelDir</code>，<code>--logDir</code>，<code>--dataDir</code>，<code>--prevModelDir</code>这四个参数应在<code>opts</code>前提供。并且，<code>cfg</code>先从<code>opts</code>中更新配置，然后再从四个参数中更新，所以如果提供了重复的可选参数，程序会保留后四个可选参数的内容。</p>
+<p>例子：</p>
+<pre><code class="language-bash">python tools/train.py \
+    --cfg experiments/coco/hrnet/w32_256x192_adam_lr1e-3.yaml \
+</code></pre>
+<h2 id="主要问题">主要问题</h2>
+<h3 id="coco评估指标">coco评估指标</h3>
+<p>OKS指标，与此对应的还有coco api中是如何计算AP，AR等指标的？</p>
+<p>关键就是评估groundtruth和pred关键点的相似性</p>
+<figure data-type="image" tabindex="1"><img src="https://www.researchgate.net/profile/Matteo_Ruggero_Ronchi/publication/323793190/figure/fig1/AS:872291768492034@1584981972510/Keypoint-Similarity-ks-The-ks-between-two-detections-eye-red-and-wrist-green-and.png" alt="Keypoint Similarity (ks)" loading="lazy"></figure>
+<p>OKS指标是coco中应用在关键点检测上的一种方法，OKS就类似于目标检测中的IoU，coco中的实现在<code>cocoeval.py</code>。OKS：<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mfrac><mrow><msub><mo>∑</mo><mi>i</mi></msub><mi>exp</mi><mo>⁡</mo><mo>(</mo><mo>−</mo><msubsup><mi>d</mi><mi>i</mi><mn>2</mn></msubsup><mi mathvariant="normal">/</mi><mn>2</mn><msup><mi>s</mi><mn>2</mn></msup><msubsup><mi>k</mi><mi>i</mi><mn>2</mn></msubsup><mo>)</mo><mi>δ</mi><mo>(</mo><msub><mi>v</mi><mi>i</mi></msub><mo>&gt;</mo><mn>0</mn><mo>)</mo></mrow><mrow><msub><mo>∑</mo><mi>i</mi></msub><mi>δ</mi><mo>(</mo><msub><mi>v</mi><mi>i</mi></msub><mo>&gt;</mo><mn>0</mn><mo>)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{\sum_i \exp(-d_i^2 / 2s^2 k_i^2) \delta(v_i &gt; 0)}{\sum_i \delta(v_i &gt; 0)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.728934em;vertical-align:-0.5700069999999999em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.158927em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1496471428571428em;"><span style="top:-2.1785614285714283em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.32143857142857146em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mathdefault mtight" style="margin-right:0.03785em;">δ</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.03588em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span><span class="mord mtight">0</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5350070000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1496471428571428em;"><span style="top:-2.1785614285714283em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.32143857142857146em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mop mtight">exp</span><span class="mopen mtight">(</span><span class="mord mtight">−</span><span class="mord mtight"><span class="mord mathdefault mtight">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8913142857142857em;"><span style="top:-2.214em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286em;"><span></span></span></span></span></span></span><span class="mord mtight">/</span><span class="mord mtight">2</span><span class="mord mtight"><span class="mord mathdefault mtight">s</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8913142857142857em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8913142857142857em;"><span style="top:-2.214em;margin-left:-0.03148em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span><span class="mord mathdefault mtight" style="margin-right:0.03785em;">δ</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.03588em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span><span class="mord mtight">0</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5700069999999999em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>：</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>d</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">d_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>就是groundtruth和pred的第<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span>个关键点之间的欧几里得距离</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span></span></span></span>是尺度因子，这个值等于此人在groundtruth中所占面积的平方根，<strong>如何计算？如果是标注中的<code>area</code>项，其是否需要修改？</strong><code>area</code>有两种计算方法：1、coco数据集是根据segmentation计算的；2、下面的老虎姿态检测是根据bbox计算的。<strong>HRNet中只需要保证coco中<code>area&gt;0</code>即可</strong>，计算应该是只跟图片面积有关的。<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span></span></span></span>应该是与<code>area</code>项相关的，</p>
+<pre><code class="language-python">    e = (dx**2 + dy**2) / vars / (gt['area']+np.spacing(1)) / 2
+    if k1 &gt; 0:
+        e=e[vg &gt; 0]
+    ious[i, j] = np.sum(np.exp(-e)) / e.shape[0]
+</code></pre>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>k</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">k_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03148em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>是通过对数据集中所有groundtruth计算的标准差<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>σ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\sigma_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>而得到的。一般来说，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>σ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\sigma_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>越大，表示在计算OKS指标时我们越重视它。对于每个关键点，COCO数据集制造者收集了一个包含5000张重复标注的图片，然后统计每一类关键点的相对于目标人物尺寸的标注方差，即：<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><mo>=</mo><mi>E</mi><mo>[</mo><msubsup><mi>d</mi><mi>i</mi><mn>2</mn></msubsup><mi mathvariant="normal">/</mi><msup><mi>s</mi><mn>2</mn></msup><mo>]</mo></mrow><annotation encoding="application/x-tex">\sigma_i^2 = E[d_i^2 / s^2]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.072772em;vertical-align:-0.258664em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-2.441336em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.072772em;vertical-align:-0.258664em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mopen">[</span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-2.441336em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord"><span class="mord mathdefault">s</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。</p>
+<p>一般来说，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>k</mi><mi>i</mi></msub><mo>=</mo><mn>2</mn><msub><mi>σ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">k_i = 2\sigma_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03148em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.79444em;vertical-align:-0.15em;"></span><span class="mord">2</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>（这个‘2’也应该是经过调整得到的类似超参数的数值，因为真正的<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>σ</mi></mrow><annotation encoding="application/x-tex">\sigma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span></span></span></span>是无法计算的）。</p>
+<blockquote>
+<p>正如所讨论的，我们为每个关键点类型<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span>设置<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>k</mi><mi>i</mi></msub><mo>=</mo><mn>2</mn><msub><mi>σ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">k_i = 2\sigma_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03148em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.79444em;vertical-align:-0.15em;"></span><span class="mord">2</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>。对于人来说，括号内为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>σ</mi></mrow><annotation encoding="application/x-tex">\sigma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span></span></span></span>取值，鼻子（0.026）、眼睛（0.025）、耳朵（0.035）、肩膀（0.079）、手肘（0.072）、手腕(0.062)、臀部（0.107）和膝盖（0.087），脚踝（0.089）</p>
+</blockquote>
+<p><strong>那么我们是否需要针对我们的数据集调整<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>σ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\sigma_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>以获得有意义并且易于解释相似性度量？<strong>我之前在github上看到有使用HRNet实现</strong>老虎姿态检测</strong>比赛（<a href="https://cvwc2019.github.io/challenge.html">CVWC 2019 Tiger Pose Track Challenge</a>）的<a href="https://github.com/wanghao14/CVWC2019-pose">开源代码</a>，他们针对cocoapi进行了调整，如下。</p>
+<blockquote>
+<p>Using HRNet for <a href="https://cvwc2019.github.io/challenge.html">CVWC 2019 Tiger Pose Track Challenge</a> based on https://github.com/leoxiaobin/deep-high-resolution-net.pytorch. For the keypoints difference between human and tiger, we made some modifications in the original <a href="https://github.com/cocodataset/cocoapi">cocoapi</a>.</p>
+<p>官方cocoapi:<code>np.array([.26, .25, .25, .35, .35, .79, .79, .72, .72, .62,.62, 1.07, 1.07, .87, .87, .89, .89])/10.0</code></p>
+<p>该repo修改的cocoapi: <code> np.array([.24, .72, .72, .18, .62, .23, .56, .26, .38, .28, .29, .48, .23, .60, .47])/10.0</code></p>
+</blockquote>
+<figure data-type="image" tabindex="2"><img src="https://github.wuyanzheshui.workers.dev/wanghao14/CVWC2019-pose/raw/master/deep-high-resolution-net.pytorch/figures/000028.jpg" alt="res3" loading="lazy"></figure>
+<p>我认为我们可以根据我们的数据集对不同的关节点给定不同的<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>σ</mi></mrow><annotation encoding="application/x-tex">\sigma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span></span></span></span>。但是如果像coco中直接用500张图片计算就比较费劲，可以手动调低一点。</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">v_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>表示第<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span>个关键点是否可见，这个是由groundtruth提供的，不使用关键点检测器得到的<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">v_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，未标记（<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">v_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> = 0）的预测关键点不会影响OKS。</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>δ</mi></mrow><annotation encoding="application/x-tex">\delta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03785em;">δ</span></span></span></span>用于将可见点选出来进行计算的函数，即只有当检测点和GT同时可见时才纳入计算，最后的OKS在所有可见的GT上进行平均。</p>
+<p>获取这些参数之后，将<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>d</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">d_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>作为距离，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><msub><mi>k</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">sk_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord mathdefault">s</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03148em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>作为标准偏差放到一个未归一化的gaussian函数中，即<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>exp</mi><mo>⁡</mo><mo>(</mo><mo>−</mo><msubsup><mi>d</mi><mi>i</mi><mn>2</mn></msubsup><mi mathvariant="normal">/</mi><mn>2</mn><msup><mi>s</mi><mn>2</mn></msup><msubsup><mi>k</mi><mi>i</mi><mn>2</mn></msubsup><mo>)</mo></mrow><annotation encoding="application/x-tex">\exp(-d_i^2 / 2s^2 k_i^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.072772em;vertical-align:-0.258664em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mord">−</span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-2.441336em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord">2</span><span class="mord"><span class="mord mathdefault">s</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-2.441336em;margin-left:-0.03148em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>。 完美的预测将具有OKS = 1，而所有关键点偏离多个标准偏差<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><msub><mi>k</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">sk_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord mathdefault">s</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03148em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>的预测将具有OKS〜0。</p>
+<pre><code class="language-python"> Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.978
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 1.000
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.990
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.939
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.979
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.983
+ Average Recall     (AR) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 1.000
+ Average Recall     (AR) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.998
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.967
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.983
+| Arch | AP | Ap .5 | AP .75 | AP (M) | AP (L) | AR | AR .5 | AR .75 | AR (M) | AR (L) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| pose_hrnet | 0.978 | 1.000 | 0.990 | 0.939 | 0.979 | 0.983 | 1.000 | 0.998 | 0.967 | 0.983 |
+</code></pre>
+<p>因为生成的coco标注格式中固定area为100，所以完全不存在medium和large，我们的medium和large指标也就是-1。在确定OKS就是关键点检测中类似IoU的评价指标后，上面十行应该就比较清晰了：</p>
+<p><strong>mAP，IoU为0.5、0.75下的AP，area为medium和large下的mAP。AR同理。</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://cjmcv.github.io/deeplearning-paper-notes/images/pdDataset/coco5.png" alt="img" loading="lazy"></figure>
+<p>官方对上图的说明：</p>
+<blockquote>
+<ol>
+<li>除非另有说明，否则AP和AR在多个OKS值（0.50：0.05：0.95）之间取平均值。</li>
+<li>正如所讨论的，我们为每个关键点类型i设置κi=2σi。对于人来说，括号内为σ取值，鼻子（0.026）、眼睛（0.025）、耳朵（0.035）、肩膀（0.079）、手肘（0.072）、手腕(0.062)、臀部（0.107）和膝盖（0.087），脚踝（0.089）</li>
+<li>AP（所有10个OKS阈值的平均值）将决定挑战胜利者。当考虑COCO的关键点性能时，这应该被认为是最重要的一个指标。</li>
+<li>计算所有度量标准，每个图像最多允许20个最高得分检测（我们使用20个检测，而不是像对象检测挑战那样的100个，因为当前人是唯一具有关键点的类别）。</li>
+<li>小对象（分割区域面积小于32x32）没有关键点标注信息，所以small部分不在训练和测试范围内。</li>
+<li>对于没有标注关键点的对象（包括人群），我们使用宽松的启发式方法，以允许根据预测的关键点（hallucinated keypoints）（置于实际真实对象内以便最大化OKS）匹配检测结果。这与使用框/分割（boxes/segments）信息来忽略区域的处理非常相似。</li>
+<li>无论被标记的还是可见的关键点的数量如何，每个对象都具有相同的重要性。我们不过滤只有几个关键点的对象，也不会根据存在的关键点的数量来加权对象示例。</li>
+</ol>
+</blockquote>
+<p><strong>官方还针对代码分析（Analysis Code）作出了一些解释</strong>，但是我还没仔细看。</p>
+<h4 id="如何评估">如何评估</h4>
+<p>在之前，这点是没有被我讨论到的，现在添加一下。</p>
+<p>对于关键点识别，coco需要两个参数，一个是groundtruth，另一个是detection，detection的格式要求为：</p>
+<pre><code class="language-json">[{
+    &quot;image_id&quot;: int,
+    &quot;category_id&quot;: int,
+    &quot;keypoints&quot;: [x1,y1,v1,...,xk,yk,vk],
+    &quot;score&quot;: float,
+
+}]
+</code></pre>
+<p>其中，<code>image_id</code>是结果所对应的图片id，<code>category_id</code>是对应的分类，对于关键点识别，这个数为1，<code>keypoints</code>是坐标点<code>xk</code>和<code>yk</code>，以及是否可视<code>vk</code>，由于不需要对<code>vk</code>处理，所以也可设置为1，<code>score</code>是置信度，<a href="https://github.com/leoxiaobin/deep-high-resolution-net.pytorch/blob/ba50a82dce412df97f088c572d86d7977753bf74/lib/dataset/coco.py#L340">HRNet源码</a>中采取的计算方式是<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi><mo>=</mo><mfrac><mrow><msub><mo>∑</mo><mi>i</mi></msub><msub><mi>v</mi><mi>i</mi></msub><mo>∗</mo><mi>δ</mi><mo>(</mo><msub><mi>v</mi><mi>i</mi></msub><mo>&gt;</mo><mi>t</mi><mi>h</mi><mi>r</mi><mi>e</mi><mi>s</mi><mo>)</mo></mrow><mrow><msub><mo>∑</mo><mi>i</mi></msub><mi>δ</mi><mo>(</mo><msub><mi>v</mi><mi>i</mi></msub><mo>&gt;</mo><mi>t</mi><mi>h</mi><mi>r</mi><mi>e</mi><mi>s</mi><mo>)</mo></mrow></mfrac><mo>∗</mo><mi>b</mi><mi>o</mi><mi>x</mi><mtext> </mtext><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">score=\frac{\sum_i v_i * \delta(v_i &gt; thres)}{\sum_i \delta(v_i &gt; thres)}*box\ score</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.6300139999999999em;vertical-align:-0.5700069999999999em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.060007em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1496471428571428em;"><span style="top:-2.1785614285714283em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.32143857142857146em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mathdefault mtight" style="margin-right:0.03785em;">δ</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.03588em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">h</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight">s</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5350070000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1496471428571428em;"><span style="top:-2.1785614285714283em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.32143857142857146em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.03588em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mbin mtight">∗</span><span class="mord mathdefault mtight" style="margin-right:0.03785em;">δ</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.03588em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">h</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight">s</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5700069999999999em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">b</span><span class="mord mathdefault">o</span><span class="mord mathdefault">x</span><span class="mspace"> </span><span class="mord mathdefault">s</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span></span></span></span><br>
+（注意，这里的<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">v_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>是置信度，所以<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">score</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span></span></span></span>是置信度的一个平均，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>b</mi><mi>o</mi><mi>x</mi><mtext> </mtext><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">box \ score</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">b</span><span class="mord mathdefault">o</span><span class="mord mathdefault">x</span><span class="mspace"> </span><span class="mord mathdefault">s</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span></span></span></span>由于没有，设为1）</p>
+<p>HRNet提供的目标检测器结果文件的格式为：</p>
+<pre><code class="language-json">[{
+    &quot;bbox&quot;: [x0, y0, x1, y1],
+    &quot;category_id&quot;: int,
+    &quot;image_id&quot;: int,
+    &quot;score&quot;: float
+}]
+</code></pre>
+<h2 id="附录">附录</h2>
+<h3 id="配置参数">配置参数</h3>
+<p>配置参数保存成树状结构。</p>
+<table>
+<thead>
+<tr>
+<th>父节点</th>
+<th>参数名</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>Log_dir</td>
+<td>输出文件夹（同logDir）</td>
+<td>'Log'</td>
+</tr>
+<tr>
+<td></td>
+<td>Data_dir</td>
+<td>项目根目录（同dataDir）</td>
+<td>''</td>
+</tr>
+<tr>
+<td></td>
+<td>Output_dir</td>
+<td>输出根目录（同modelDir）</td>
+<td>'Output'</td>
+</tr>
+<tr>
+<td></td>
+<td>Gpus</td>
+<td>训练所需的GPU</td>
+<td>(0,1,2,3)</td>
+</tr>
+<tr>
+<td></td>
+<td>Workers</td>
+<td>数据加载器的子线程数</td>
+<td>24</td>
+</tr>
+<tr>
+<td></td>
+<td>Print_frequency</td>
+<td>每个epoch训练时的输出频率，假设其为100，则单个epoch加载100次图片后输出一次</td>
+<td>100</td>
+</tr>
+<tr>
+<td></td>
+<td>Auto_resume</td>
+<td>自动保存</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Pin_memory</td>
+<td>数据加载时数据在显存中的固定地址</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>rank</td>
+<td>次序，可用于表明本次是第几次训练，代码中仅用于拼接输出json文件名</td>
+<td>0</td>
+</tr>
+<tr>
+<td>cudnn</td>
+<td>Benchmark</td>
+<td>如果开启，CUDNN会自动选择最适合当前硬件的网络加速结构。在开始时花费一点额外时间，为整个网络的每个卷积层搜索最适合它的卷积实现算法，进而实现网络的加速。适用场景是网络结构固定（不是动态变化的），网络的输入形状（包括 batch size，图片大小，输入的通道）是不变的</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>deterministic</td>
+<td>CUDNN保证所有网络结构一致，与benchmark对立，会提升网络的可复现性但降低速度。每次返回的卷积算法将是确定的，即默认算法。如果配合上设置 Torch 的随机种子为固定值的话，应该可以保证每次运行网络的时候相同输入的输出是固定的。</td>
+<td>False</td>
+</tr>
+<tr>
+<td></td>
+<td>enabled</td>
+<td>使用非确定性算法，自动寻找最适合当前配置的高效算法，来达到优化运行效率。</td>
+<td>True</td>
+</tr>
+<tr>
+<td>model</td>
+<td>name</td>
+<td>模型名称</td>
+<td>Pose_hrnet</td>
+</tr>
+<tr>
+<td></td>
+<td>Init_weights</td>
+<td>是否初始化网络权重，如果指定预训练文件，则会从预训练文件中加载。</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>pretrained</td>
+<td>预训练文件路径</td>
+<td>'models  /pytorch/  imagenet/  hrnet_  w488ef0771d.pth'</td>
+</tr>
+<tr>
+<td></td>
+<td>Num_joints</td>
+<td>关节点数，固定为17，代码中还指定了上下关节点，如果修改，必须调整。</td>
+<td>17</td>
+</tr>
+<tr>
+<td></td>
+<td>Tag_per_joint</td>
+<td>关节点名称</td>
+<td>代码中没有具体的实现，配置文件中也没有调用</td>
+</tr>
+<tr>
+<td></td>
+<td>Target_type</td>
+<td>Heatmap生成方式，代码中仅支持高斯分布</td>
+<td>Gausian</td>
+</tr>
+<tr>
+<td></td>
+<td>Image_size</td>
+<td>输入网络的图片大小</td>
+<td>[256,256]</td>
+</tr>
+<tr>
+<td></td>
+<td>Heatmap_size</td>
+<td>输入网络的heatmap大小</td>
+<td>[64,64]</td>
+</tr>
+<tr>
+<td></td>
+<td>sigma</td>
+<td>生成heatmap的高斯分布的sigma参数</td>
+<td>2</td>
+</tr>
+<tr>
+<td></td>
+<td>extra</td>
+<td>网络结构，具体在config中没有指定，但是由配置文件保存了网络结构。extra节点的内容就是models.py。</td>
+<td>${models.py}</td>
+</tr>
+<tr>
+<td>loss</td>
+<td>Use_ohkm</td>
+<td>是否使用ohkm（online hard keypoint mining）损失函数</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>topk</td>
+<td>Ohkm损失的配置参数，寻找前k个难例</td>
+<td>8</td>
+</tr>
+<tr>
+<td></td>
+<td>Use_target_weight</td>
+<td>是否使用目标权重，如果距离图片周围较近的点会被判为0</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Use_defferent_joints_weight</td>
+<td>使用不同关节点权重</td>
+<td>True</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td>root</td>
+<td>数据集路径，它等于data_dir+dataset.root，它包含annotations和images两个文件夹，images下包含train_set和test_set的数据集文件夹。（可以在实现中调整一下，使其更加方便调用）</td>
+<td>‘dataset/coco/hrnet'</td>
+</tr>
+<tr>
+<td></td>
+<td>dataset</td>
+<td>数据集名称，coco或者mpii，可根据名称调用不同的类，并加载进dataloader</td>
+<td>coco</td>
+</tr>
+<tr>
+<td></td>
+<td>Train_set</td>
+<td>训练集名称</td>
+<td>Train2017</td>
+</tr>
+<tr>
+<td></td>
+<td>Test_set</td>
+<td>验证集名称</td>
+<td>Val2017</td>
+</tr>
+<tr>
+<td></td>
+<td>Data_format</td>
+<td>图片格式</td>
+<td>Jpg</td>
+</tr>
+<tr>
+<td></td>
+<td>Hybrid_joints_type</td>
+<td>混合关节点类型（具体作用不太清楚，在代码中只用于拼接文件名）</td>
+<td>''</td>
+</tr>
+<tr>
+<td></td>
+<td>Select_data</td>
+<td>选择符合<strong>OKS指标</strong>的数据</td>
+<td>False</td>
+</tr>
+<tr>
+<td></td>
+<td>flip</td>
+<td>翻转数据实现数据增强</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Scale_factor</td>
+<td>缩放尺度</td>
+<td>0.35</td>
+</tr>
+<tr>
+<td></td>
+<td>Rot_factor</td>
+<td>旋转尺度</td>
+<td>45</td>
+</tr>
+<tr>
+<td></td>
+<td>Prob_half_body</td>
+<td>半身概率，这里应该可以针对模型进行适当的修改</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td></td>
+<td>Num_joints_half_body</td>
+<td>半身关节点数量，全身关节点数的一半</td>
+<td>8</td>
+</tr>
+<tr>
+<td></td>
+<td>Color_rgb</td>
+<td>调整为RGB格式，主要是opencv读取图片成BGR格式的问题。</td>
+<td>True</td>
+</tr>
+<tr>
+<td>train</td>
+<td>Lr_factor</td>
+<td>学习率衰减因子</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td></td>
+<td>Lr_step</td>
+<td>学习率衰减epoch</td>
+<td>170 200</td>
+</tr>
+<tr>
+<td></td>
+<td>lr</td>
+<td>学习率</td>
+<td>0.001</td>
+</tr>
+<tr>
+<td></td>
+<td>optimizer</td>
+<td>优化算子，可选Adam和SGD</td>
+<td>adam</td>
+</tr>
+<tr>
+<td></td>
+<td>momentum</td>
+<td>动量大小，包括其的三个都是SGD算子的参数</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td></td>
+<td>wd</td>
+<td>权重衰减大小weight decay</td>
+<td>0.0001</td>
+</tr>
+<tr>
+<td></td>
+<td>nesterov</td>
+<td>是否使用nestrov动量</td>
+<td>False</td>
+</tr>
+<tr>
+<td></td>
+<td><s>Gamma1</s></td>
+<td></td>
+<td>0.99</td>
+</tr>
+<tr>
+<td></td>
+<td><s>Gamma2</s></td>
+<td></td>
+<td>0.0</td>
+</tr>
+<tr>
+<td></td>
+<td>Begin_epoch</td>
+<td>开始的epoch</td>
+<td>0</td>
+</tr>
+<tr>
+<td></td>
+<td>End_epoch</td>
+<td>结束的epoch</td>
+<td>210</td>
+</tr>
+<tr>
+<td></td>
+<td><s>resume</s></td>
+<td>保存</td>
+<td>False</td>
+</tr>
+<tr>
+<td></td>
+<td><s>checkpoint</s></td>
+<td>检查点，具体也没有实现</td>
+<td>‘'</td>
+</tr>
+<tr>
+<td></td>
+<td>Batch_size_per_gpu</td>
+<td>训练时每个gpu上的batch_size</td>
+<td>24</td>
+</tr>
+<tr>
+<td></td>
+<td>shuffle</td>
+<td>打乱数据，使得dataloader每次提供的数据顺序都不同</td>
+<td>True</td>
+</tr>
+<tr>
+<td>test</td>
+<td>Batch_size_per_gpu</td>
+<td>测试时每个gpu上的batch_size</td>
+<td>32</td>
+</tr>
+<tr>
+<td></td>
+<td>Post_process</td>
+<td>后期处理</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Shift_heatmap</td>
+<td>Heatmap移位，实现中仅移动一位</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Use_gt_bbox</td>
+<td>使用ground truth包围盒</td>
+<td>False</td>
+</tr>
+<tr>
+<td></td>
+<td>Image_thre</td>
+<td>（下面几个都与NMS相关）图像置信度</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td></td>
+<td><s>NMS_thre</s></td>
+<td>没有实现，可能是IoU</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td></td>
+<td>Soft_NMS</td>
+<td>是否使用soft oks NMS</td>
+<td>False</td>
+</tr>
+<tr>
+<td></td>
+<td>Oks_thre</td>
+<td>OKS阈值</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td></td>
+<td>In_vis_thre</td>
+<td>可见阈值？</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td></td>
+<td>Coco_bbox_file</td>
+<td>Coco预训练的包围盒文件，也就是需要先进行目标检测</td>
+<td>‘'</td>
+</tr>
+<tr>
+<td></td>
+<td>Bbox_thre</td>
+<td>包围盒阈值</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td></td>
+<td>Model_file</td>
+<td>训练完成的模型权重文件</td>
+<td>‘'</td>
+</tr>
+<tr>
+<td>debug</td>
+<td>debug</td>
+<td>是否开启debug输出</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Save_batch_images_gt</td>
+<td>是否保存批处理图像的ground truth</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Save_batch_images_pred</td>
+<td>是否保存批处理图像的predict</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Save_heatmaps_gt</td>
+<td>是否保存heatmap的ground truth</td>
+<td>True</td>
+</tr>
+<tr>
+<td></td>
+<td>Save_heatmaps_pred</td>
+<td>是否保存heatmap的predict</td>
+<td>True</td>
+</tr>
+</tbody>
+</table>
+<h3 id="无关问题">无关问题</h3>
+<ol>
+<li>如果关闭use_target_weight，heatmap是如何计算的？例如(0,0,0)的点计算出来的heatmap是怎样的，它计算损失值是怎样的？</li>
+</ol>
+<p><code>loss += 0.5 * self.criterion(heatmap_pred, heatmap_gt)</code>是关闭use_target_weight的计算方法，感觉像是两个图像被压缩成列向量(<code>heatmap_pred = heatmaps_pred[idx].squeeze()</code>)从而在高维下计算二者的MSEloss。(0,0,0)的heatmap是只保留左上角的gaussian值，0~6。</p>
+<ol start="2">
+<li>dataset.flip与test.flip_test有什么区别？</li>
+</ol>
+<p>dataset.flip会随机翻转一半的输入数据，相当于数据增强（<code>if self.flip and random.random() &lt;= 0.5</code>），test.flip_test是是否需要翻转图片来进行valid，如果开启，会通过output和output_flip的均值计算output（<code>output = (output + output_flipped) * 0.5</code>）。</p>
+<ol start="3">
+<li>如果放入神经网络中都是一样的，那么设置缩放尺度的意义是啥？旋转之后是否对图片进行了裁剪？</li>
+</ol>
+<p>这两个问题比较智障，其实看这一句代码应该就明白了。</p>
+<pre><code class="language-python">input = cv2.warpAffine(
+    data_numpy,
+    trans,
+    (int(self.image_size[0]), int(self.image_size[1])),
+    flags=cv2.INTER_LINEAR)
+</code></pre>
+<p>输入网络的图片其实并不需要我管理，只需要给定一个变换向量<code>trans</code>，然后opencv库会帮我自动实现。<code>cv2.warpAffine</code>会自动旋转图片，空余的地方补0，即黑色。</p>
+<ol start="4">
+<li>num_joints_half_body在实现中到底是怎么样的？如果我们可以调整，可以怎么调整？</li>
+</ol>
+<p>这个参数不应该理解成横或者竖，应该就是<code>17/2=8</code>，8个点是所有点的一半，如果少于这么多的点，代码中会对中心进行微调。在代码中，num_joints_half_body和prob_half_body是绑定的。</p>
+<pre><code class="language-python">if (np.sum(joints_vis[:, 0]) &gt; self.num_joints_half_body
+        and np.random.rand() &lt; self.prob_half_body):
+    # 如果点数多于半个身体的点数, 但是生成的随机数小于半个身体的概率, 微调center和scale
+    c_half_body, s_half_body = self.half_body_transform(joints, joints_vis)
+</code></pre>
+<p>从上面的代码来看，num_joints_half_body在我们的数据中起到的作用，至少在<strong>未作弊</strong>的数据中，可能起不到很大的变化。prob_half_body，在<strong>未作弊</strong>的数据中，基本上点数少于半个身体的情况很少，最多是丢失了两个桌子点；但是在<strong>作弊</strong>的数据中，丢失手臂，甚至头部的情况还是存在的，这个参数应该可以上调一下。</p>
+<ol start="5">
+<li>center和scale的作用？</li>
+</ol>
+<p>这个只在传入数据的时候起作用，在数据传到神经网络之后，就没办法了。这两个参数主要是在缩放和旋转时起作用，以center为中心，按照scale比例调整图片。</p>
+<ol start="6">
+<li>上面的github repo与HRNet官方的实现的差别</li>
+</ol>
+<p>基本上一样，针对我上面谈到的参数做了一些调整</p>
+<h3 id="参考">参考</h3>
+<p><a href="https://www.jianshu.com/p/ad4baa95f92c">OKS指标详解（官方文档的部分翻译）</a></p>
+<p><a href="https://cjmcv.github.io/deeplearning-paper-notes/fdataset/2016/10/01/COCO.html#Keypoint">COCO数据集的所有标注格式解释</a></p>
+<p><a href="https://cocodataset.org/#keypoints-eval">COCO官方关键点评估文档</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/135355550">MSCOCO api详解——Keypoints -知乎</a></p>
+<p><a href="https://blog.csdn.net/xiaojiajia007/article/details/78746149">检测与姿态估计的评价标准</a></p>
+<p><a href="https://blog.csdn.net/qq_35941018/article/details/88044623">理解coco关键点检测评价指标</a></p>
+<p><a href="https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule">3 sigma原则</a></p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%85%A5%E5%8F%A3">命令行入口</a></li>
+<li><a href="#%E4%B8%BB%E8%A6%81%E9%97%AE%E9%A2%98">主要问题</a>
+<ul>
+<li><a href="#coco%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87">coco评估指标</a>
+<ul>
+<li><a href="#%E5%A6%82%E4%BD%95%E8%AF%84%E4%BC%B0">如何评估</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%99%84%E5%BD%95">附录</a>
+<ul>
+<li><a href="#%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0">配置参数</a></li>
+<li><a href="#%E6%97%A0%E5%85%B3%E9%97%AE%E9%A2%98">无关问题</a></li>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/gnn-ar/">
+              <h3 class="post-title">
+                gnn-ar
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

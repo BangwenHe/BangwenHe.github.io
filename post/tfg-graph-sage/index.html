@@ -1,0 +1,195 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>tfg graph sage | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="tfg graph sage | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="将tf_geometric实现的graph sage模型部署成tflite的局限性。
+
+算子的支持程度：
+有一个tf算子不能被tflite后端支持：UnsortedSegmentSum。这个是框架用于收集邻居节点的特征的算子，有一个tfli..." />
+    <meta name="keywords" content="gnn,graph sage" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              tfg graph sage
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-10-27
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+                <a href="https://blog.bangwhe.com/tag/FwxriVISW/" class="post-tag">
+                  # gnn
+                </a>
+              
+                <a href="https://blog.bangwhe.com/tag/xuBviy9sox/" class="post-tag">
+                  # graph sage
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>将tf_geometric实现的graph sage模型部署成tflite的局限性。</p>
+<!-- more -->
+<p>算子的支持程度：</p>
+<p>有一个tf算子不能被tflite后端支持：<a href="https://www.tensorflow.org/api_docs/cc/class/tensorflow/ops/unsorted-segment-sum">UnsortedSegmentSum</a>。这个是框架用于收集邻居节点的特征的算子，有一个tflite支持的<code>SegmentSum</code>算子，但是我替换了一下，发现不行（因为这个受支持的算子<strong>要求索引是顺序</strong>的，这样一个循环就可以收集到所有的数据，减少了移动设备的运算量）。</p>
+<p>导出的sage网络结构图如下图所示（可以导出，但是算子不支持，不能使用），</p>
+<figure data-type="image" tabindex="1"><img src="https://i.loli.net/2021/10/27/63fjWcD5J2oZ8r1.png" alt="sage.tflite.png" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://i.loli.net/2021/10/27/SyIk4JBHbaU3KCG.png" alt="image.png" loading="lazy"></figure>
+<p>可能的解决方案：</p>
+<ul>
+<li><strong>用mace写算子</strong>，从上图来看，基本上的算子都是支持的，但是<code>UnsortedSegmentSum</code>应该也是不支持的，基本上只需要写一个算子。</li>
+<li>我们要做的任务和这个demo的任务是不同的，我们的任务是动作识别，但是这个demo的任务是节点分类。<strong>可能我们的骨架图里的节点的索引是顺序的</strong>，那就可以把这个算子替换掉，从而把它部署成tflite。</li>
+<li>再<strong>尝试新的GNN框架</strong>，但是框架的支持程度不一，可能还是要写算子。</li>
+</ul>
+<p>想到的问题：</p>
+<ul>
+<li>模型上，我们的模型用的是graph sage，它的主要思想是采样+节点特征聚合。我们的骨架图比较小，可能不需要采样，直接用GCN就好，就算是十几帧的骨架图串联，运算量也不会大。大部分的骨架动作识别论文用的也是GCN，我还不太清楚<strong>为什么要用graph sage而不是GCN</strong>。</li>
+<li>关键点识别可能会产生错误，我们可以试试能不能<strong>避免这种脏数据对动作识别的影响</strong>，如下图所示。</li>
+<li>采样，<strong>不同的采样策略也会对动作识别产生影响</strong>。</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://i.loli.net/2021/10/27/C6LVaZxFntUj832.gif" alt="fsd.gif" loading="lazy"></figure>
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/dgl-wei-shi-me-bu-neng-zhi-chi-tflite/">
+              <h3 class="post-title">
+                dgl为什么不能支持tflite？
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,227 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>tflite支持 | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="tflite支持 | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="dgl支持
+之前调研的dgl只支持tensorflow作为后端，但是并不支持tflite作为后端，因为里面有一些自定义的op，不能被tflite转化。同理，用pytorch版本的dgl导出成ONNX也是不行的，目前只能用原生的pytorch..." />
+    <meta name="keywords" content="tflite,gnn" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              tflite支持
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-10-21
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+                <a href="https://blog.bangwhe.com/tag/LMZgYWgpld/" class="post-tag">
+                  # tflite
+                </a>
+              
+                <a href="https://blog.bangwhe.com/tag/FwxriVISW/" class="post-tag">
+                  # gnn
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="dgl支持">dgl支持</h1>
+<p>之前调研的dgl只支持tensorflow作为后端，但是并不支持tflite作为后端，因为里面有一些自定义的op，不能被tflite转化。同理，用pytorch版本的dgl导出成ONNX也是不行的，目前只能用<strong>原生</strong>的pytorch或者tensorflow运行。</p>
+<!-- more -->
+<p>像dgl这样的基于消息传递的GNN库可能无法迁移到tflite上，我们只能用邻接矩阵实现的gnn算法才行。目前我们的模型里只有一个与图有关的算法，graphsage，如果能够把它转化成tflite，那也就算是把整个模型迁移过去了。<strong>如果使用原论文的graphsage，它能否受到支持？</strong></p>
+<h1 id="graphsage开源仓库">graphsage开源仓库</h1>
+<p>下面是一些找到有关的gnn仓库：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">仓库名</th>
+<th style="text-align:center">是否支持tflite</th>
+<th style="text-align:center">原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><a href="https://github.com/williamleif/GraphSAGE">GraphSAGE</a>(原论文实现)</td>
+<td style="text-align:center">×</td>
+<td style="text-align:center">不太行，我在1.8的版本下转换成pb模型成功了，pb模型再转换成tflite模型失败了。上面显示一些op不受tflite后端支持：<code> RandomShuffle, RandomUniform, Range, Rank</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="https://github.com/Firyuza/GraphSAGE">GraphSAGE</a>(tf2实现)</td>
+<td style="text-align:center">?</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="https://github.com/CrawlScript/tf_geometric">tf geometric</a></td>
+<td style="text-align:center">×</td>
+<td style="text-align:center">目前有三个GCN所使用到的算子不受支持：<code>tf.IsInf, tf.IsNan, tf.UnsortedSegmentSum</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="https://github.com/microsoft/tf2-gnn">tf2-gnn</a></td>
+<td style="text-align:center">?</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="https://github.com/dmlc/dgl">dgl</a></td>
+<td style="text-align:center">×</td>
+<td style="text-align:center">DGL对于稀疏矩阵的实现用了自己用C实现的算子，不能被转换成tflite</td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="https://github.com/FighterLYL/GraphNeuralNetwork/tree/master/chapter7">GraphNeuralNetwork GraphSAGE简单实现</a></td>
+<td style="text-align:center">?</td>
+<td style="text-align:center">Pytorch基于邻接矩阵的实现，如果后面需要，可以从这个改写，或者转换到tflite，但是不是比较官方的实现，可能存在一定的缺陷</td>
+</tr>
+</tbody>
+</table>
+<h1 id="图结构">图结构</h1>
+<p>图结构要组织好再送到模型中，或者是直接在模型里生成。</p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#dgl%E6%94%AF%E6%8C%81">dgl支持</a></li>
+<li><a href="#graphsage%E5%BC%80%E6%BA%90%E4%BB%93%E5%BA%93">graphsage开源仓库</a></li>
+<li><a href="#%E5%9B%BE%E7%BB%93%E6%9E%84">图结构</a></li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/hua-yang-hua-bing-shu-ju-fen-xi/">
+              <h3 class="post-title">
+                花样滑冰数据分析
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

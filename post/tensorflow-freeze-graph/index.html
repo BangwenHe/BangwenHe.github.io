@@ -1,0 +1,262 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>tensorflow freeze graph | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="tensorflow freeze graph | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="tensorflow的pb文件有两种类型，一种是saved model graph，另一种是frozen graph，这两种文件都保存了模型的计算图结构，但是saved model将权重保存到了ckpt中，frozen graph直接将所有..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              tensorflow freeze graph
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-11-17
+              </span>
+              <span>
+                4 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>tensorflow的pb文件有两种类型，一种是saved model graph，另一种是frozen graph，这两种文件都保存了模型的计算图结构，但是saved model将权重保存到了ckpt中，frozen graph直接将所有权重保存到了pb文件中。因为转换mace模型需要frozen graph模型，所以知道如何进行转换是非常重要的。本文参考的tensorflow版本——2.7。</p>
+<p>frozen_graph转换原理：</p>
+<ul>
+<li>加载模型文件，有四种加载方式——<code>input_saver_def</code>、<code>input_meta_graph_def</code>、<code>input_saved_model_dir</code>、<code>input_checkpoint</code>（我取的）。这四种不同的加载方式对应了参数中不同的input类型，也就是不同的freeze模式。</li>
+<li>转换模型变量为常量。因为pb文件从底层上来说就是protobuf的<code>GraphDef</code>实现，它不能保存变量<code>variable</code>，但是能够保存常量<code>const</code>，所以需要转换模型变量为常量，这样才能将权重和计算图都保存到一个文件中去。</li>
+</ul>
+<p>tensorflow转换frozen graph有两种方式：1、命令行直接调用<code>freeze_graph</code>指令进行转换；2、在python代码中调用<code>freeze_graph</code>方法进行转换。这两种的参数都是一样的，因为底层都是调用了同一套代码。</p>
+<p>freeze_graph介绍中使用案例：</p>
+<pre><code class="language-bash">bazel build tensorflow/python/tools:freeze_graph &amp;&amp; \
+bazel-bin/tensorflow/python/tools/freeze_graph \
+--input_graph=some_graph_def.pb \
+--input_checkpoint=model.ckpt-8361242 \
+--output_graph=/tmp/frozen_graph.pb --output_node_names=softmax
+</code></pre>
+<p>python使用案例：<a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/tools/freeze_graph_test.py">freeze_graph_test</a></p>
+<p>参数表参考：</p>
+<ul>
+<li><a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/tools/freeze_graph.py#L298">freeze_graph</a></li>
+<li><a href="https://blog.csdn.net/u011511601/article/details/80262707">Tensorflow freeze_graph - CSDN</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/64099452">TensorFlow中模型的freeze_graph - 知乎</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/31308381">Tensorflow框架实现中的『三』种图 - 知乎</a></li>
+<li><a href="https://tensorflow.juejin.im/extend/tool_developers/index.html">工具开发者指南：TensorFlow 模型文件 - 掘金</a></li>
+</ul>
+<p>参数表如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">input_graph</td>
+<td>计算图结构，可以为pb文件、pbtxt文件，由input_binary区分</td>
+</tr>
+<tr>
+<td style="text-align:center">input_saver</td>
+<td>saver解析器。保存模型和权限时，Saver也可以自身序列化保存，以便在加载时应用合适的版本。主要用于版本不兼容时使用。可以为空，为空时用当前版本的Saver。</td>
+</tr>
+<tr>
+<td style="text-align:center">input_checkpoint</td>
+<td>检查点数据文件。训练时，给Saver用于保存权重、偏置等变量值。这时用于模型恢复变量值。ckpt文件地址应为<code>.ckpt</code>结尾，而不是<code>.data-***</code>。</td>
+</tr>
+<tr>
+<td style="text-align:center">checkpoint_version</td>
+<td>检查点的格式，<code>saver_pb2.SaverDef.V1</code>或者<code>saver_pb2.SaverDef.V2</code>，默认为<code>saver_pb2.SaverDef.V2</code>。命令行中为1或者2。</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>output_graph</strong></td>
+<td>输出的pb文件的路径。</td>
+</tr>
+<tr>
+<td style="text-align:center">input_binary</td>
+<td>配合input_graph。区分输入的计算图结构是否是二进制的，二进制为pb文件，文本为pbtxt文件。</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>output_node_names</strong></td>
+<td>输出节点的名称，当存在多个时用逗号区分。</td>
+</tr>
+<tr>
+<td style="text-align:center">restore_op_name</td>
+<td>已弃用。从模型恢复节点的名字。默认：save/restore_all</td>
+</tr>
+<tr>
+<td style="text-align:center">filename_tensor_name</td>
+<td>已弃用。默认：save/Const:0</td>
+</tr>
+<tr>
+<td style="text-align:center">clear_devices</td>
+<td>默认True。指定是否清除训练时节点指定的运算设备（如cpu、gpu、tpu。cpu是默认）</td>
+</tr>
+<tr>
+<td style="text-align:center">initializer_nodes</td>
+<td>默认空。权限加载后，可通过此参数来指定需要初始化的节点，用逗号分隔多个节点名字。</td>
+</tr>
+<tr>
+<td style="text-align:center">variable_names_whitelist</td>
+<td>默认空。需要转换的变量名。</td>
+</tr>
+<tr>
+<td style="text-align:center">variable_names_blacklist</td>
+<td>默认空。变量黑名单，用于指定不用恢复值的变量，用逗号分隔多个变量名字。</td>
+</tr>
+<tr>
+<td style="text-align:center">input_meta_graph</td>
+<td>输入的meta文件的路径，类似<code>input_graph</code></td>
+</tr>
+<tr>
+<td style="text-align:center">input_saved_model_dir</td>
+<td><code>SavedModel</code>的模型和变量存储路径</td>
+</tr>
+<tr>
+<td style="text-align:center">saved_model_tags</td>
+<td>以字符串格式的<code>MetaGraphDef</code>的逗号分隔标记组</td>
+</tr>
+</tbody>
+</table>
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/attention-or-filter-or-others/">
+              <h3 class="post-title">
+                Attention or Filter or Others?
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

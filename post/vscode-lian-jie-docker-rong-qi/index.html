@@ -1,0 +1,188 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>vscode连接docker容器 | Bangwen&#39;s Blog</title>
+<link rel="shortcut icon" href="https://blog.bangwhe.com/favicon.ico?v=1652803290492">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.bangwhe.com/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="vscode连接docker容器 | Bangwen&#39;s Blog - Atom Feed" href="https://blog.bangwhe.com/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="vscode连接
+1、在本地安装Remote - SSH拓展
+
+2、安装完成后左侧会出现一个服务器的标志，在侧边栏左上角有三种状态可以切换：Containers（docker容器）、SSH Targets（SSH服务器）、WSL Targe..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.bangwhe.com">
+  <img class="avatar" src="https://blog.bangwhe.com/images/avatar.png?v=1652803290492" alt="">
+  </a>
+  <h1 class="site-title">
+    Bangwen&#39;s Blog
+  </h1>
+  <p class="site-description">
+    More intelligence comes with more labour.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              vscode连接docker容器
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-12-22
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="vscode连接">vscode连接</h1>
+<p>1、在本地安装<code>Remote - SSH</code>拓展</p>
+<figure data-type="image" tabindex="1"><img src="https://s2.loli.net/2021/12/22/z5qaTXmxdSZipCH.png" alt="image.png" loading="lazy"></figure>
+<p>2、安装完成后左侧会出现一个服务器的标志，在侧边栏左上角有三种状态可以切换：<code>Containers</code>（docker容器）、<code>SSH Targets</code>（SSH服务器）、<code>WSL Targets</code>（WSL虚拟机）。</p>
+<figure data-type="image" tabindex="2"><img src="https://s2.loli.net/2021/12/22/ptmBas2hd3KyU5k.png" alt="image.png" loading="lazy"></figure>
+<p>3、在本机上只能切换本地的docker容器，所以需要先通过SSH连接到远程服务器才能在VSCode上切换容器。</p>
+<p>4、SSH连接远程服务器。打开SSH侧边栏，点击<code>+</code>号添加新的远程服务器，需要手动输入连接指令<code>ssh username@hostip</code>。并选择SSH连接配置的保存路径，默认位于<code>~/.ssh/config</code>。如果已经在这个文件中写入过连接配置，vscode会自动展示。</p>
+<figure data-type="image" tabindex="3"><img src="https://s2.loli.net/2021/12/22/JTi6W34Snlg8y7j.png" alt="image.png" loading="lazy"></figure>
+<p>右键远程服务器即可打开。</p>
+<p>也可以点击左下角的<code>&gt;&lt;</code>按钮，并选择<code>connect to host</code>也可以连接到远程服务器。</p>
+<p>5、在连接到的远程服务器中选择SSH侧边栏，并切换到<code>containers</code>状态，从中选择需要连接的容器。</p>
+<figure data-type="image" tabindex="4"><img src="https://s2.loli.net/2021/12/22/LVWA1Ir3ROuzNPY.png" alt="image.png" loading="lazy"></figure>
+<p>6、连接成功后，左下角会显示当前窗口对应的机器。</p>
+<figure data-type="image" tabindex="5"><img src="https://s2.loli.net/2021/12/22/rSODnX8vT7mBo3N.png" alt="image.png" loading="lazy"></figure>
+<h1 id="命令行连接">命令行连接</h1>
+<p>1、ssh连接到远程服务器。</p>
+<p>2、如果容器成功创建并已经打开，可使用<code>docker attach $container_name</code>连接。但是需要注意：通过本机进入docker容器不要使用exit退出，这会导致容器系统的退出，使用<code>Ctrl+P Q</code>关闭容器的连接。如果通过ssh连接，则可以使用exit，只退出当前的连接，不会退出容器。</p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#vscode%E8%BF%9E%E6%8E%A5">vscode连接</a></li>
+<li><a href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%BF%9E%E6%8E%A5">命令行连接</a></li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.bangwhe.com/post/dwmexe-cpu-yu-nei-cun-zhan-yong-wen-ti/">
+              <h3 class="post-title">
+                dwm.exe CPU与内存占用问题
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://blog.bangwhe.com/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
