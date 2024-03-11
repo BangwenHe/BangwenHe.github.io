@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Yet Another 何榜文&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Yet Another 何榜文&#39;s Blog">
+<meta property="og:url" content="http://hebangwen.github.io/index.html">
+<meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="何榜文">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Yet Another 何榜文's Blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Yet Another 何榜文&#39;s Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Suche"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Suche"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hebangwen.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-MNN_GPU_float16" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/03/11/MNN_GPU_float16/" class="article-date">
+  <time class="dt-published" datetime="2024-03-11T13:12:34.000Z" itemprop="datePublished">2024-03-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2024/03/11/MNN_GPU_float16/">MNN GPU float16 使用原理</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>MNN 使用 <code>MNN::BackendConfig::Precision_Low</code> 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。</p>
+<p>当导出的模型可以使用 float32 或者 float16 保存，当权重转换到 GPU 上时，会转换格式，在代码的第19行到第22行。代码随附。</p>
+<p>Pipeline 中保存的 tensor 指向的 opencl buffer 保存的还是 float16。但是 <code>OpenCL::onMapTensor</code> 和 <code>OpenCL::onUnmapTensor</code> 的实现保证了映射前后得到的是 float32。<code>OpenCLBackend::onAcquire</code> 给出了 tensor 中保存的 buffer 格式，其中调用了 <code>isSupportedFP16</code> 判断目前是否支持 float16，如果支持则使用 float16 的大小创建 buffer。</p>
+<p><code>OpenCLBackend::onMapTensor</code> 给出了映射 gpu buffer 到 cpu 上的实现。调用 <code>onMapTensor</code> 时如果不支持 SVM，会创建一个新的 cpu 内存块（<code>svmPtr = allocMapTensorMemory</code>），可以执行任意操作。对这块内存操作完毕后，如果是以 <code>MAP_TENSOR_WRITE</code> 的形式创建的 tensor，会将内存重新写回到 gpu buffer 中（<code>onCopyBuffer(&amp;srcTensor, dstTensor)</code>），这个时候会执行一次数据格式转换，包括 float16 到 float32。这表示：<strong>每次只能 map 一个 gpu tensor，不能 map 两个</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MNN OpenCLBackend.cpp</span></span><br><span class="line"><span class="function">Backend::MemObj* <span class="title">OpenCLBackend::onAcquire</span><span class="params">(<span class="type">const</span> Tensor* nativeTensor, StorageType storageType)</span> </span>&#123;</span><br><span class="line">    <span class="meta">#<span class="keyword">ifdef</span> LOG_VERBOSE</span></span><br><span class="line">    <span class="built_in">MNN_PRINT</span>(<span class="string">&quot;Start OpenCLBackend::onAcquireBuffer !\n&quot;</span>);</span><br><span class="line">    <span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> tensorShape = OpenCL::<span class="built_in">tensorShapeFormat</span>(nativeTensor);</span><br><span class="line">    <span class="type">int</span> N = tensorShape.<span class="built_in">at</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="type">int</span> H = tensorShape.<span class="built_in">at</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="type">int</span> W = tensorShape.<span class="built_in">at</span>(<span class="number">2</span>);</span><br><span class="line">    <span class="type">int</span> C = tensorShape.<span class="built_in">at</span>(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">#<span class="keyword">ifdef</span> LOG_VERBOSE</span></span><br><span class="line">    <span class="built_in">MNN_PRINT</span>(<span class="string">&quot;OpenCLBackend::onAcquireBuffer: NHWC:[%d, %d, %d, %d]\n&quot;</span>, N, H, W, C);</span><br><span class="line">    <span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="meta">#<span class="keyword">ifndef</span> MNN_OPENCL_BUFFER_CLOSED</span></span><br><span class="line">    <span class="keyword">if</span>(mOpenCLRuntime-&gt;<span class="built_in">getGpuMemType</span>() == BUFFER) &#123;</span><br><span class="line">        <span class="type">size_t</span> size;</span><br><span class="line">        <span class="keyword">if</span> (nativeTensor-&gt;<span class="built_in">dimensions</span>() &gt;= <span class="number">2</span>) &#123;</span><br><span class="line">            <span class="keyword">auto</span> alignC = <span class="built_in">ROUND_UP</span>(C, <span class="number">8</span>);</span><br><span class="line">            <span class="comment">// increment of height and width</span></span><br><span class="line">            <span class="keyword">auto</span> hR = <span class="built_in">ROUND_UP</span>(H + <span class="number">3</span>, <span class="number">4</span>) - H;</span><br><span class="line">            <span class="keyword">auto</span> wR = <span class="built_in">ROUND_UP</span>(W + <span class="number">3</span>, <span class="number">4</span>) - W;</span><br><span class="line">            size = N * alignC * W * H;</span><br><span class="line">            size = size + hR * W * <span class="number">4</span> + wR * <span class="number">4</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            size = nativeTensor-&gt;<span class="built_in">elementSize</span>();</span><br><span class="line">            size = <span class="built_in">ROUND_UP</span>(size, <span class="number">4</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (mOpenCLRuntime-&gt;<span class="built_in">isSupportedIntelSubgroup</span>()) &#123;</span><br><span class="line">            <span class="type">int</span> cPack = TensorUtils::<span class="built_in">getTensorChannelPack</span>(nativeTensor);</span><br><span class="line">            <span class="keyword">auto</span> pads  = TensorUtils::<span class="built_in">getDescribe</span>(nativeTensor)-&gt;mPads;</span><br><span class="line">            <span class="type">size_t</span> imageWidth  = (<span class="type">size_t</span>) <span class="built_in">ROUND_UP</span>(<span class="built_in">UP_DIV</span>(C, cPack), <span class="number">2</span>) * <span class="built_in">ROUND_UP</span>(pads.left + W + pads.right, <span class="number">4</span>);<span class="comment">//C-round to 8,W-round to 4, for memory alloc</span></span><br><span class="line">            <span class="type">size_t</span> imageHeight = (<span class="type">size_t</span>)N * H;</span><br><span class="line">            size = imageWidth*imageHeight*cPack;</span><br><span class="line">        &#125;</span><br><span class="line">        cl_channel_type dataType = CL_FLOAT;</span><br><span class="line">        <span class="comment">//when support and want fp16, use half datatype</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">getOpenCLRuntime</span>()-&gt;<span class="built_in">isSupportedFP16</span>()) &#123;</span><br><span class="line">            dataType = CL_HALF_FLOAT;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (storageType == DYNAMIC_SEPERATE) &#123;</span><br><span class="line">            <span class="keyword">auto</span> buffer = mBufferPool-&gt;<span class="built_in">alloc</span>(size*</span><br><span class="line">                          (dataType==CL_HALF_FLOAT?<span class="built_in">sizeof</span>(half_float::half):<span class="built_in">sizeof</span>(<span class="type">float</span>)), <span class="literal">true</span>);</span><br><span class="line">            ((Tensor*)nativeTensor)-&gt;<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)buffer;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">CLMemReleaseBuffer</span>(buffer, mBufferPool.<span class="built_in">get</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (storageType == DYNAMIC) &#123;</span><br><span class="line">            <span class="keyword">auto</span> buffer = mBufferPool-&gt;<span class="built_in">alloc</span>(size*</span><br><span class="line">                          (dataType==CL_HALF_FLOAT?<span class="built_in">sizeof</span>(half_float::half):<span class="built_in">sizeof</span>(<span class="type">float</span>)));</span><br><span class="line">            ((Tensor*)nativeTensor)-&gt;<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)buffer;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">CLMemReleaseBuffer</span>(buffer, mBufferPool.<span class="built_in">get</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">MNN_ASSERT</span>(storageType == STATIC);</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> MNN_LOW_MEMORY</span></span><br><span class="line">        <span class="comment">// for weight quant model&#x27;s weight</span></span><br><span class="line">        <span class="keyword">if</span> ((nativeTensor-&gt;<span class="built_in">getType</span>().code == halide_type_int) &amp;&amp;</span><br><span class="line">            (nativeTensor-&gt;<span class="built_in">getType</span>().bits == <span class="number">8</span> || nativeTensor-&gt;<span class="built_in">getType</span>().bits == <span class="number">4</span>)) &#123;</span><br><span class="line">            <span class="comment">// int8 quant</span></span><br><span class="line">            <span class="type">size_t</span> alloc_size = size;</span><br><span class="line">            <span class="keyword">if</span> (nativeTensor-&gt;<span class="built_in">getType</span>().bits == <span class="number">4</span>) &#123;</span><br><span class="line">                <span class="comment">// int4 quant</span></span><br><span class="line">                alloc_size = size / <span class="number">2</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">auto</span> buffer = mStaticBufferPool-&gt;<span class="built_in">alloc</span>(alloc_size);</span><br><span class="line">            ((Tensor*)nativeTensor)-&gt;<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)buffer;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">CLMemReleaseBuffer</span>(buffer, mStaticBufferPool.<span class="built_in">get</span>());</span><br><span class="line">        &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">        <span class="keyword">auto</span> buffer = mStaticBufferPool-&gt;<span class="built_in">alloc</span>(size*</span><br><span class="line">                     (dataType == CL_HALF_FLOAT ? <span class="built_in">sizeof</span>(half_float::half) : <span class="built_in">sizeof</span>(<span class="type">float</span>)));</span><br><span class="line">        ((Tensor*)nativeTensor)-&gt;<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)buffer; <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">CLMemReleaseBuffer</span>(buffer, mStaticBufferPool.<span class="built_in">get</span>());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    <span class="meta">#<span class="keyword">endif</span> <span class="comment">/* MNN_OPENCL_BUFFER_CLOSED */</span></span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">size_t</span> imageWidth  = (<span class="type">size_t</span>) (<span class="built_in">UP_DIV</span>(C, <span class="number">4</span>) * W);<span class="comment">//image mode only C pack to 4</span></span><br><span class="line">        <span class="type">size_t</span> imageHeight = (<span class="type">size_t</span>)N * H;</span><br><span class="line">        cl_channel_type dataType = CL_HALF_FLOAT;</span><br><span class="line">        <span class="comment">//when user want high precision, use float datatype</span></span><br><span class="line">        <span class="keyword">if</span> (mPrecision == BackendConfig::Precision_High) &#123;</span><br><span class="line">            dataType = CL_FLOAT;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (storageType == DYNAMIC_SEPERATE) &#123;</span><br><span class="line">            <span class="keyword">auto</span> image                               = mImagePool-&gt;<span class="built_in">alloc</span>(imageWidth, imageHeight, dataType, <span class="literal">true</span>);</span><br><span class="line">            ((Tensor*)nativeTensor)-&gt;<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)image; <span class="comment">// fix</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">CLMemReleaseImage</span>(image, mImagePool.<span class="built_in">get</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (storageType == DYNAMIC) &#123;</span><br><span class="line">            <span class="keyword">auto</span> image                               = mImagePool-&gt;<span class="built_in">alloc</span>(imageWidth, imageHeight, dataType);</span><br><span class="line">            ((Tensor*)nativeTensor)-&gt;<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)image; <span class="comment">// fix</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">CLMemReleaseImage</span>(image, mImagePool.<span class="built_in">get</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">MNN_ASSERT</span>(storageType == STATIC);</span><br><span class="line">        <span class="keyword">auto</span> image                               = mStaticImagePool-&gt;<span class="built_in">alloc</span>(imageWidth, imageHeight, dataType);</span><br><span class="line">        ((Tensor*)nativeTensor)-&gt;<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)image; <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">CLMemReleaseImage</span>(image, mStaticImagePool.<span class="built_in">get</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span>* <span class="title">OpenCLBackend::onMapTensor</span><span class="params">(Tensor::MapType mtype, Tensor::DimensionType dtype, <span class="type">const</span> Tensor* srcTensor)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> needSize = srcTensor-&gt;<span class="built_in">size</span>();</span><br><span class="line">    <span class="built_in">clearRecord</span>();</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> MNN_OPENCL_SVM_ENABLE</span></span><br><span class="line">    <span class="keyword">auto</span> svm_cap_ = mOpenCLRuntime-&gt;<span class="built_in">getSvmCapabilities</span>();</span><br><span class="line">    <span class="type">bool</span> use_svm = (svm_cap_ &amp; CL_DEVICE_SVM_FINE_GRAIN_BUFFER);<span class="comment">//support fine grain svm</span></span><br><span class="line">    use_svm |= ((svm_cap_ &amp; CL_DEVICE_SVM_COARSE_GRAIN_BUFFER) &amp;&amp; mOpenCLRuntime-&gt;<span class="built_in">getGpuType</span>() == ADRENO);<span class="comment">//support coarse grain svm and adreno gpu</span></span><br><span class="line"></span><br><span class="line">    mUseSvm = (mOpenCLRuntime-&gt;<span class="built_in">getCLVersion</span>() &gt; <span class="number">1.99f</span> &amp;&amp; use_svm);</span><br><span class="line">    <span class="keyword">if</span>(mUseSvm) &#123;<span class="comment">// CL version beyond 2.0 &amp; support svm</span></span><br><span class="line">        svmPtr = <span class="built_in">allocMapTensorMemory</span>(needSize, <span class="literal">true</span>, svm_cap_);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(mtype == Tensor::MAP_TENSOR_READ) &#123;</span><br><span class="line">            <span class="comment">//tmpTensor alloc</span></span><br><span class="line">            <span class="function">MNN::Tensor <span class="title">tmpTensor</span><span class="params">(srcTensor, dtype, <span class="literal">false</span>)</span></span>;</span><br><span class="line">            tmpTensor.<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)svmPtr;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//Convert format</span></span><br><span class="line">            MNN_DATA_FORMAT format_type = MNN_DATA_FORMAT_NCHW;</span><br><span class="line">            <span class="keyword">if</span>(dtype == MNN::Tensor::TENSORFLOW) &#123;</span><br><span class="line">                format_type = MNN_DATA_FORMAT_NHWC;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span>(dtype == MNN::Tensor::CAFFE_C4) &#123;</span><br><span class="line">                format_type = MNN_DATA_FORMAT_NC4HW4;</span><br><span class="line">            &#125;</span><br><span class="line">            mCLRuntime-&gt;<span class="built_in">convertFromDevice</span>(srcTensor, &amp;tmpTensor, format_type, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(svm_cap_ &amp; CL_DEVICE_SVM_FINE_GRAIN_BUFFER) &#123;</span><br><span class="line">            <span class="comment">//Make sure command finished</span></span><br><span class="line">            mOpenCLRuntime-&gt;<span class="built_in">commandQueue</span>().<span class="built_in">finish</span>();</span><br><span class="line">            <span class="keyword">return</span> svmPtr;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> map_flag = CL_MAP_WRITE;</span><br><span class="line">        <span class="keyword">if</span>(mtype == Tensor::MAP_TENSOR_READ) &#123;</span><br><span class="line">            map_flag = CL_MAP_READ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        cl_int res = <span class="built_in">clEnqueueSVMMap</span>(mOpenCLRuntime-&gt;<span class="built_in">commandQueue</span>().<span class="built_in">get</span>(), <span class="literal">true</span>, map_flag, svmPtr, needSize, <span class="number">0</span>, <span class="literal">nullptr</span>, <span class="literal">nullptr</span>);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">MNN_CHECK_CL_SUCCESS</span>(res, <span class="string">&quot;svm_map&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> svmPtr;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    Not Support Svm, Use onopyBuffer</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    svmPtr = <span class="built_in">allocMapTensorMemory</span>(needSize, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mtype == Tensor::MAP_TENSOR_READ) &#123;</span><br><span class="line">        <span class="comment">//tmpTensor alloc</span></span><br><span class="line">        <span class="function">MNN::Tensor <span class="title">tmpTensor</span><span class="params">(srcTensor, dtype, <span class="literal">false</span>)</span></span>;</span><br><span class="line">        tmpTensor.<span class="built_in">buffer</span>().host = (<span class="type">uint8_t</span> *)svmPtr;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//use onCopyBuffer</span></span><br><span class="line">        <span class="built_in">onCopyBuffer</span>(srcTensor, &amp;tmpTensor);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> svmPtr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">OpenCLBackend::onUnmapTensor</span><span class="params">(Tensor::MapType mtype, Tensor::DimensionType dtype, <span class="type">const</span> Tensor* dstTensor, <span class="type">void</span>* mapPtr)</span> </span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> MNN_OPENCL_SVM_ENABLE</span></span><br><span class="line">    <span class="keyword">auto</span> svm_cap_ = mOpenCLRuntime-&gt;<span class="built_in">getSvmCapabilities</span>();</span><br><span class="line">    <span class="keyword">if</span>(mUseSvm) &#123;<span class="comment">// CL version beyond 2.0 &amp; support svm</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//If COARSE_SVM, Unmap first</span></span><br><span class="line">        <span class="keyword">if</span>(!(svm_cap_ &amp; CL_DEVICE_SVM_FINE_GRAIN_BUFFER)) &#123;</span><br><span class="line">            cl_int res = <span class="built_in">clEnqueueSVMUnmap</span>(mOpenCLRuntime-&gt;<span class="built_in">commandQueue</span>().<span class="built_in">get</span>(), svmPtr, <span class="number">0</span>, <span class="literal">nullptr</span>, <span class="literal">nullptr</span>);</span><br><span class="line">            <span class="built_in">MNN_CHECK_CL_SUCCESS</span>(res, <span class="string">&quot;svm_unmap&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(mtype == Tensor::MAP_TENSOR_WRITE) &#123;</span><br><span class="line">            <span class="comment">//interTensor alloc</span></span><br><span class="line">            <span class="function">MNN::Tensor <span class="title">interTensor</span><span class="params">(dstTensor, dtype, <span class="literal">false</span>)</span></span>;</span><br><span class="line">            interTensor.<span class="built_in">buffer</span>().device = (<span class="type">uint64_t</span>)svmPtr;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//Convert format</span></span><br><span class="line">            MNN_DATA_FORMAT format_type = MNN_DATA_FORMAT_NCHW;</span><br><span class="line">            <span class="keyword">if</span>(dtype == MNN::Tensor::TENSORFLOW) &#123;</span><br><span class="line">                format_type = MNN_DATA_FORMAT_NHWC;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span>(dtype == MNN::Tensor::CAFFE_C4) &#123;</span><br><span class="line">                format_type = MNN_DATA_FORMAT_NC4HW4;</span><br><span class="line">            &#125;</span><br><span class="line">            mCLRuntime-&gt;<span class="built_in">convertToDevice</span>(&amp;interTensor, dstTensor, format_type, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        mOpenCLRuntime-&gt;<span class="built_in">commandQueue</span>().<span class="built_in">finish</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    Not Support Svm, Use onopyBuffer</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span>(mtype == Tensor::MAP_TENSOR_WRITE) &#123;</span><br><span class="line">        <span class="comment">//srcTensor alloc</span></span><br><span class="line">        <span class="function">MNN::Tensor <span class="title">srcTensor</span><span class="params">(dstTensor, dtype, <span class="literal">false</span>)</span></span>;</span><br><span class="line">        srcTensor.<span class="built_in">buffer</span>().host = (<span class="type">uint8_t</span> *)svmPtr;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//use onCopyBuffer</span></span><br><span class="line">        <span class="built_in">onCopyBuffer</span>(&amp;srcTensor, dstTensor);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// MNN ConvBufExecution.cpp</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ConvBufExecution::setConv1x1WeightBuffer</span><span class="params">(<span class="type">int</span> packCout, <span class="type">int</span> packCin, <span class="type">const</span> <span class="type">float</span>* filterDataPtr)</span> </span>&#123;</span><br><span class="line">    cl_int res;</span><br><span class="line">    <span class="function">std::shared_ptr&lt;Tensor&gt; <span class="title">filterBuffer</span><span class="params">(Tensor::createDevice&lt;<span class="type">float</span>&gt;(&#123;ROUND_UP(mOutputChannel, <span class="number">8</span>)<span class="comment">/*Cout pack set to max 8*/</span>, ROUND_UP(mInputChannel, packCin), mKernelWidth, mKernelHeight&#125;))</span></span>;</span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> buffer_size = filterBuffer-&gt;<span class="built_in">elementSize</span>();</span><br><span class="line">    <span class="keyword">if</span>(mOpenCLBackend-&gt;<span class="built_in">getOpenCLRuntime</span>()-&gt;<span class="built_in">isSupportedFP16</span>()) &#123;</span><br><span class="line">        buffer_size *= <span class="built_in">sizeof</span>(half_float::half);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        buffer_size *= <span class="built_in">sizeof</span>(<span class="type">float</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    mKernelBuffer.<span class="built_in">reset</span>(<span class="keyword">new</span> cl::<span class="built_in">Buffer</span>(mOpenCLBackend-&gt;<span class="built_in">getOpenCLRuntime</span>()-&gt;<span class="built_in">context</span>(), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR, buffer_size));</span><br><span class="line">    <span class="keyword">auto</span> kernelBufferPtr = mOpenCLBackend-&gt;<span class="built_in">getOpenCLRuntime</span>()-&gt;<span class="built_in">commandQueue</span>().<span class="built_in">enqueueMapBuffer</span>(*(mKernelBuffer.<span class="built_in">get</span>()), <span class="literal">true</span>, CL_MAP_WRITE, <span class="number">0</span>, buffer_size, <span class="literal">nullptr</span>, <span class="literal">nullptr</span>, &amp;res);</span><br><span class="line">    <span class="keyword">if</span>(kernelBufferPtr != <span class="literal">nullptr</span> &amp;&amp; res == CL_SUCCESS)&#123;</span><br><span class="line">        ::<span class="built_in">memset</span>(kernelBufferPtr, <span class="number">0</span>, buffer_size);</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> o = <span class="number">0</span>; o &lt; mOutputChannel; o++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span> ; i &lt; mInputChannel; i++)&#123;</span><br><span class="line">                <span class="type">int</span> bufferIdx = (o/packCout) * <span class="built_in">ROUND_UP</span>(mInputChannel, packCin)*packCout + (i/packCin)*packCin*packCout + (o%packCout)*packCin + (i%packCin);<span class="comment">//(Co/packCout, Ci/packCin, packCout, packCin)</span></span><br><span class="line">                <span class="type">int</span> filterIdx = o*mInputChannel + i;</span><br><span class="line">                <span class="keyword">if</span>(mOpenCLBackend-&gt;<span class="built_in">getOpenCLRuntime</span>()-&gt;<span class="built_in">isSupportedFP16</span>())&#123;</span><br><span class="line">                    ((half_float::half*)kernelBufferPtr)[bufferIdx] = (half_float::half)(filterDataPtr[filterIdx]);</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    ((<span class="type">float</span>*)kernelBufferPtr)[bufferIdx] = (<span class="type">float</span>)(filterDataPtr[filterIdx]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="built_in">MNN_ERROR</span>(<span class="string">&quot;Map error ptrCL == nullptr \n&quot;</span>);</span><br><span class="line">        <span class="built_in">MNN_ASSERT</span>(<span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    mOpenCLBackend-&gt;<span class="built_in">getOpenCLRuntime</span>()-&gt;<span class="built_in">commandQueue</span>().<span class="built_in">enqueueUnmapMemObject</span>(*(mKernelBuffer.<span class="built_in">get</span>()), kernelBufferPtr);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MNN OpenCLRuntime.cpp</span></span><br><span class="line">cl_device_fp_config fpConfig;</span><br><span class="line"><span class="keyword">auto</span> success = mFirstGPUDevicePtr-&gt;<span class="built_in">getInfo</span>(CL_DEVICE_HALF_FP_CONFIG, &amp;fpConfig);</span><br><span class="line">mIsDeviceSupportedFP16     = CL_SUCCESS == success &amp;&amp; fpConfig &gt; <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//set gpu mode, tuning level and memory object</span></span><br><span class="line"><span class="built_in">setGpuMode</span>(cl_mode);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(mMemType == AUTO) &#123;</span><br><span class="line">    <span class="keyword">if</span>(mGpuType == MALI || mGpuType == INTEL) &#123;</span><br><span class="line">        mMemType = BUFFER;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        mMemType = IMAGE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> permitFloat16 = <span class="literal">false</span>;</span><br><span class="line"><span class="keyword">if</span> (precision == BackendConfig::Precision_Low || (mMemType == BUFFER &amp;&amp; precision == BackendConfig::Precision_Normal)) &#123;<span class="comment">//buffer mode not support Normal Precision yet</span></span><br><span class="line">    permitFloat16 = <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line">mIsSupportedFP16 = mIsDeviceSupportedFP16 &amp;&amp; permitFloat16;</span><br><span class="line"><span class="built_in">MNN_PRINT</span>(<span class="string">&quot;opencl support fp16: %d, device support fp16: %d, permit fp16: %d\n&quot;</span>, mIsSupportedFP16, mIsDeviceSupportedFP16, permitFloat16);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hebangwen.github.io/2024/03/11/MNN_GPU_float16/" data-id="cltmyyse80000qouda9a3albz" data-title="MNN GPU float16 使用原理" class="article-share-link"><span class="fa fa-share">Teilen</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/03/11/hello-world/" class="article-date">
+  <time class="dt-published" datetime="2024-03-11T13:09:00.902Z" itemprop="datePublished">2024-03-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2024/03/11/hello-world/">Hello World</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hebangwen.github.io/2024/03/11/hello-world/" data-id="cltmyo4tv0000i4ud2euc8s3d" data-title="Hello World" class="article-share-link"><span class="fa fa-share">Teilen</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">三月 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/03/11/MNN_GPU_float16/">MNN GPU float16 使用原理</a>
+          </li>
+        
+          <li>
+            <a href="/2024/03/11/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 何榜文<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
