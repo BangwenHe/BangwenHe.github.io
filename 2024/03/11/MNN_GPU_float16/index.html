@@ -16,17 +16,19 @@
   <meta name="author" content="何榜文">
   <meta name="keywords" content="">
   
-    <meta name="description" content="我观察到 MNN 在使用 GPU OpenCL 时，会默认使用 float16 的格式，导致模型评测时时间不同，如图。因此查看了 MNN 的源码，发现了一些有趣的东西。 MNN 使用 MNN::BackendConfig::Precision_Low 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。 当导出的模型可以使用 float32 或者 float16 保存">
+    <meta name="description" content="我观察到 MNN 在使用 GPU OpenCL 时，会默认使用 float16 的格式，导致模型评测时时间不同，如图。因此查看了 MNN 的源码，发现了一些有趣的东西。  MNN 使用 MNN::BackendConfig::Precision_Low 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。 当导出的模型可以使用 float32 或者 float16 保">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MNN GPU float16 使用原理">
 <meta property="og:url" content="http://hebangwen.github.io/2024/03/11/MNN_GPU_float16/index.html">
 <meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
-<meta property="og:description" content="我观察到 MNN 在使用 GPU OpenCL 时，会默认使用 float16 的格式，导致模型评测时时间不同，如图。因此查看了 MNN 的源码，发现了一些有趣的东西。 MNN 使用 MNN::BackendConfig::Precision_Low 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。 当导出的模型可以使用 float32 或者 float16 保存">
+<meta property="og:description" content="我观察到 MNN 在使用 GPU OpenCL 时，会默认使用 float16 的格式，导致模型评测时时间不同，如图。因此查看了 MNN 的源码，发现了一些有趣的东西。  MNN 使用 MNN::BackendConfig::Precision_Low 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。 当导出的模型可以使用 float32 或者 float16 保">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/03/11/MPzmpRb4dDFEO1K.png">
 <meta property="article:published_time" content="2024-03-11T13:12:34.000Z">
-<meta property="article:modified_time" content="2024-03-11T13:36:39.734Z">
+<meta property="article:modified_time" content="2024-03-11T13:54:34.845Z">
 <meta property="article:author" content="何榜文">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2024/03/11/MPzmpRb4dDFEO1K.png">
   
   
   
@@ -273,6 +275,7 @@
               <div class="markdown-body">
                 
                 <p>我观察到 MNN 在使用 GPU OpenCL 时，会默认使用 float16 的格式，导致模型评测时时间不同，如图。因此查看了 MNN 的源码，发现了一些有趣的东西。</p>
+<p><img src="https://s2.loli.net/2024/03/11/MPzmpRb4dDFEO1K.png" srcset="/img/loading.gif" lazyload alt="Snipaste_2024-03-11_16-44-19.png"></p>
 <p>MNN 使用 <code>MNN::BackendConfig::Precision_Low</code> 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。</p>
 <p>当导出的模型可以使用 float32 或者 float16 保存，当权重转换到 GPU 上时，会转换格式，在代码的第19行到第22行。代码随附。</p>
 <p>Pipeline 中保存的 tensor 指向的 opencl buffer 保存的还是 float16。但是 <code>OpenCL::onMapTensor</code> 和 <code>OpenCL::onUnmapTensor</code> 的实现保证了映射前后得到的是 float32。<code>OpenCLBackend::onAcquire</code> 给出了 tensor 中保存的 buffer 格式，其中调用了 <code>isSupportedFP16</code> 判断目前是否支持 float16，如果支持则使用 float16 的大小创建 buffer。</p>
