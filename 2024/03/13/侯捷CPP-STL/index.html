@@ -1,0 +1,986 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="https://avatars.githubusercontent.com/u/32662175">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="何榜文">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="课件截图容器  list list 是一个双向链表，如果需要写一个 MyList ，那就可以参考 list 的写法。  注意到这里的 bidirectional_iterator_tag ，这表明 list 的迭代器是一个双向迭代器，只支持图中展示的四个操作。但是 vector 的迭代器是 RandomAcessIterator ，可以支持随机访问，因此能够使用 std::sort ，而不需要本身">
+<meta property="og:type" content="article">
+<meta property="og:title" content="侯捷CPP-STL">
+<meta property="og:url" content="http://hebangwen.github.io/2024/03/13/%E4%BE%AF%E6%8D%B7CPP-STL/index.html">
+<meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
+<meta property="og:description" content="课件截图容器  list list 是一个双向链表，如果需要写一个 MyList ，那就可以参考 list 的写法。  注意到这里的 bidirectional_iterator_tag ，这表明 list 的迭代器是一个双向迭代器，只支持图中展示的四个操作。但是 vector 的迭代器是 RandomAcessIterator ，可以支持随机访问，因此能够使用 std::sort ，而不需要本身">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%201.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%202.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%203.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%204.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%205.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%206.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%207.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%208.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%209.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2010.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2011.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2012.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2013.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2014.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2015.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2016.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2017.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2018.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2019.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2020.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2021.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2022.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2023.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2024.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2025.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2026.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2027.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2028.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2029.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2030.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2031.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2032.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2033.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2034.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2035.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2036.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2037.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2038.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2039.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2040.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2041.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2042.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2043.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2044.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2045.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2046.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2047.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2048.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2049.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2050.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2051.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2052.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2053.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2054.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2055.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2056.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2057.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2058.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2059.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2060.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2061.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2062.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2063.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2064.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2065.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2066.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2067.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2068.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2069.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2070.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2071.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2072.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2073.png">
+<meta property="og:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2074.png">
+<meta property="article:published_time" content="2024-03-13T04:40:38.000Z">
+<meta property="article:modified_time" content="2024-03-13T06:42:21.860Z">
+<meta property="article:author" content="何榜文">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://hebangwen.github.io/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>侯捷CPP-STL - Yet Another 何榜文&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"hebangwen.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yet Another 何榜文&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>联系我</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="侯捷CPP-STL"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-13 12:40" pubdate>
+          2024年3月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          56 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">侯捷CPP-STL</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="课件截图"><a href="#课件截图" class="headerlink" title="课件截图"></a>课件截图</h1><h2 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h2><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%201.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%202.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>list 是一个双向链表，如果需要写一个 <code>MyList</code> ，那就可以参考 list 的写法。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%203.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>注意到这里的 <code>bidirectional_iterator_tag</code> ，这表明 list 的迭代器是一个双向迭代器，只支持图中展示的四个操作。但是 vector 的迭代器是 <code>RandomAcessIterator</code> ，可以支持随机访问，因此能够使用 <code>std::sort</code> ，而不需要本身带有一个 sort 函数。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%204.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>在之前的黑马程序员里也讲过这个编译器优化案例。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%205.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%206.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>list 的迭代器在 2.9 和 4.9 中存在一定的不同，2.9 中的指针类型和引用类型都是不固定的，可以任意指定，但是 4.9 中的都与数据成员 <code>_Tp</code> 一致。同时，指针类型也通过继承实现了自带的 <code>next</code> 和 <code>prev</code> 。（可以用于以后的实现）</p>
+<p>但是目前 MSVC 的实现并不一样，而是使用了一个 <code>Node_Ptr</code> ，其等于 <code>typename pointer_traits&lt;type-parameter-0-1&gt;::template rebind&lt;_List_node&lt;_Value_type, _Voidptr&gt;&gt;</code> 。（rebind 做 allocator）</p>
+<h3 id="iterator-traits"><a href="#iterator-traits" class="headerlink" title="iterator traits"></a>iterator traits</h3><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%207.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%208.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>迭代器提供了五种 Type，都可以被算法访问。上面的 <code>typename iterator_traits&lt;_Iter&gt;::iterator_category()</code> 应该返回的是迭代器的类型（这应该是泛型编程中的内容 → <strong>TODO</strong>）</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%209.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>泛型编程中的 _Traits 是一种编程技巧，用来将模板参数和类型之间的联系抽象出来，以便实现更加灵活的编程。它实际上是一种类型提取技术，可以从类型中提取出一些其他的类型。比如，C++ 中的 <code>iterator_traits</code> 就可以用来提取迭代器的类型，<code>std::sort</code> 就可以根据迭代器的类型选择合适的排序算法。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2010.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>下面是 MSVC 的代码，与上图的代码基本一致：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>, <span class="hljs-keyword">class</span> = <span class="hljs-type">void</span>&gt;<br><span class="hljs-keyword">struct</span> _Iterator_traits_base &#123;&#125;; <span class="hljs-comment">// empty for non-iterators</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Iter</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">_Iterator_traits_base</span>&lt;_Iter,<br>    <span class="hljs-type">void_t</span>&lt;<span class="hljs-keyword">typename</span> _Iter::iterator_category, <span class="hljs-keyword">typename</span> _Iter::value_type, <span class="hljs-keyword">typename</span> _Iter::difference_type,<br>        <span class="hljs-keyword">typename</span> _Iter::pointer, <span class="hljs-keyword">typename</span> _Iter::reference&gt;&gt; &#123;<br>    <span class="hljs-comment">// defined if _Iter::* types exist</span><br>    <span class="hljs-keyword">using</span> iterator_category = <span class="hljs-keyword">typename</span> _Iter::iterator_category;<br>    <span class="hljs-keyword">using</span> value_type        = <span class="hljs-keyword">typename</span> _Iter::value_type;<br>    <span class="hljs-keyword">using</span> difference_type   = <span class="hljs-keyword">typename</span> _Iter::difference_type;<br>    <span class="hljs-keyword">using</span> pointer           = <span class="hljs-keyword">typename</span> _Iter::pointer;<br>    <span class="hljs-keyword">using</span> reference         = <span class="hljs-keyword">typename</span> _Iter::reference;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-type">bool</span> = is_object_v&lt;_Ty&gt;&gt;<br><span class="hljs-keyword">struct</span> _Iterator_traits_pointer_base &#123; <span class="hljs-comment">// iterator properties for pointers to object</span><br>    <span class="hljs-keyword">using</span> iterator_category = random_access_iterator_tag;<br>    <span class="hljs-keyword">using</span> value_type        = <span class="hljs-type">remove_cv_t</span>&lt;_Ty&gt;;<br>    <span class="hljs-keyword">using</span> difference_type   = <span class="hljs-type">ptrdiff_t</span>;<br>    <span class="hljs-keyword">using</span> pointer           = _Ty*;<br>    <span class="hljs-keyword">using</span> reference         = _Ty&amp;;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">_Iterator_traits_pointer_base</span>&lt;_Ty, <span class="hljs-literal">false</span>&gt; &#123;&#125;; <span class="hljs-comment">// iterator non-properties for pointers to non-object</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Iter</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span> : _Iterator_traits_base&lt;_Iter&gt; &#123;&#125;; <span class="hljs-comment">// get traits from iterator _Iter, if possible</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span>&lt;_Ty*&gt; : _Iterator_traits_pointer_base&lt;_Ty&gt; &#123;&#125;; <span class="hljs-comment">// get traits from pointer, if possible</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">// __cpp_lib_concepts</span></span><br></code></pre></td></tr></table></figure>
+
+<p><code>iterator_traits</code> 提供了迭代器和指针类型两种类型，指针类型进入到 <code>_Iterator_traits_pointer_base</code> ，迭代器类型进入到 <code>_Iterator_traits_base</code> 。</p>
+<h3 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h3><hr>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2011.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>vector 的简单的实现。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2012.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>课件上的实现是直接扩大成两倍，然后拷贝源数据。MSVC 上的实现有所不同，如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... _Valty&gt;<br>    _CONSTEXPR20 _Ty&amp; _Emplace_one_at_back(_Valty&amp;&amp;... _Val) &#123;<br>        <span class="hljs-comment">// insert by perfectly forwarding into element at end, provide strong guarantee</span><br>        <span class="hljs-keyword">auto</span>&amp; _My_data   = _Mypair._Myval2;<br>        pointer&amp; _Mylast = _My_data._Mylast;<br><br>        <span class="hljs-keyword">if</span> (_Mylast != _My_data._Myend) &#123;<br>            <span class="hljs-keyword">return</span> _Emplace_back_with_unused_capacity(_STD forward&lt;_Valty&gt;(_Val)...);<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> *_Emplace_reallocate(_Mylast, _STD forward&lt;_Valty&gt;(_Val)...);<br>    &#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... _Valty&gt;<br>    _CONSTEXPR20 pointer _Emplace_reallocate(<span class="hljs-type">const</span> pointer _Whereptr, _Valty&amp;&amp;... _Val) &#123;<br>        <span class="hljs-comment">// reallocate and insert by perfectly forwarding _Val at _Whereptr</span><br>        _Alty&amp; _Al        = _Getal();<br>        <span class="hljs-keyword">auto</span>&amp; _My_data    = _Mypair._Myval2;<br>        pointer&amp; _Myfirst = _My_data._Myfirst;<br>        pointer&amp; _Mylast  = _My_data._Mylast;<br><br>        _STL_INTERNAL_CHECK(_Mylast == _My_data._Myend); <span class="hljs-comment">// check that we have no unused capacity</span><br><br>        <span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> _Whereoff = <span class="hljs-built_in">static_cast</span>&lt;size_type&gt;(_Whereptr - _Myfirst);<br>        <span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> _Oldsize  = <span class="hljs-built_in">static_cast</span>&lt;size_type&gt;(_Mylast - _Myfirst);<br><br>        <span class="hljs-keyword">if</span> (_Oldsize == <span class="hljs-built_in">max_size</span>()) &#123;<br>            _Xlength();<br>        &#125;<br><br>        <span class="hljs-type">const</span> size_type _Newsize     = _Oldsize + <span class="hljs-number">1</span>;<br>        <span class="hljs-type">const</span> size_type _Newcapacity = _Calculate_growth(_Newsize);<br><br>        <span class="hljs-type">const</span> pointer _Newvec           = _Al.<span class="hljs-built_in">allocate</span>(_Newcapacity);<br>        <span class="hljs-type">const</span> pointer _Constructed_last = _Newvec + _Whereoff + <span class="hljs-number">1</span>;<br>        pointer _Constructed_first      = _Constructed_last;<br><br>       <span class="hljs-comment">// ... 拷贝数据</span><br>        _CATCH_ALL<br>        _Destroy_range(_Constructed_first, _Constructed_last, _Al);<br>        _Al.<span class="hljs-built_in">deallocate</span>(_Newvec, _Newcapacity);<br>        _RERAISE;<br>        _CATCH_END<br><br>        _Change_array(_Newvec, _Newsize, _Newcapacity);<br>        <span class="hljs-keyword">return</span> _Newvec + _Whereoff;<br>    &#125;<br><br>_CONSTEXPR20 size_type _Calculate_growth(<span class="hljs-type">const</span> size_type _Newsize) <span class="hljs-type">const</span> &#123;<br>        <span class="hljs-comment">// given _Oldcapacity and _Newsize, calculate geometric growth</span><br>        <span class="hljs-type">const</span> size_type _Oldcapacity = <span class="hljs-built_in">capacity</span>();<br>        <span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> _Max              = <span class="hljs-built_in">max_size</span>();<br><br>        <span class="hljs-keyword">if</span> (_Oldcapacity &gt; _Max - _Oldcapacity / <span class="hljs-number">2</span>) &#123;<br>            <span class="hljs-keyword">return</span> _Max; <span class="hljs-comment">// geometric growth would overflow</span><br>        &#125;<br><br>        <span class="hljs-type">const</span> size_type _Geometric = _Oldcapacity + _Oldcapacity / <span class="hljs-number">2</span>;<br><br>        <span class="hljs-keyword">if</span> (_Geometric &lt; _Newsize) &#123;<br>            <span class="hljs-keyword">return</span> _Newsize; <span class="hljs-comment">// geometric growth would be insufficient</span><br>        &#125;<br><br>        <span class="hljs-keyword">return</span> _Geometric; <span class="hljs-comment">// geometric growth is sufficient</span><br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>MSVC 上返回了一个 <code>_Geometric</code> 的大小，相当于<strong>每次增加 capacity 的一半</strong>，即 <code>1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 6 -&gt; 9 -&gt; 13</code> ，是符合之前黑马程序员的视频显示的结果的（**_NewSize + 1 就是为了防止大小为 1 的时候一直得到 0**）。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2013.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp">vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>,<span class="hljs-number">7</span>&#125;;<br>    v.<span class="hljs-built_in">push_back</span>(<span class="hljs-number">8</span>);<br>    vector&lt;<span class="hljs-type">int</span>&gt;::iterator::iterator_category c;  <span class="hljs-comment">// random_access_iterator_tag, 表明了这个类只用于表示名称, 无任何其他作用</span><br>    vector&lt;<span class="hljs-type">int</span>&gt;::iterator::difference_type t;    <span class="hljs-comment">// difference type (aka long long) ?</span><br>    vector&lt;<span class="hljs-type">int</span>&gt;::iterator::value_type vt;        <span class="hljs-comment">// int</span><br><br><span class="hljs-comment">// -----</span><br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">random_access_iterator_tag</span> : bidirectional_iterator_tag &#123;&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><code>iterator_category</code> 就是在算法使用时根据不同的迭代器，调用不同的实现，所以这个类型只需要起到名称占位即可。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2014.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>vector 的继承关系。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2015.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2016.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>课件上的 vector 迭代器的实现，最终是基于指针的，迭代器的数据部分的 <code>_M_current</code> ，最终只是对指针 <code>_Tp*</code> 进行了包装。但是<strong>为什么要做一层额外的包装</strong>？</p>
+<p>MSVC 的实现也是类似：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Alloc</span> = allocator&lt;_Ty&gt;&gt;<br><span class="hljs-keyword">class</span> vector &#123; <span class="hljs-comment">// varying size array of values</span><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>&gt;<br>    <span class="hljs-keyword">friend</span> <span class="hljs-keyword">class</span> _Vb_val;<br>    <span class="hljs-keyword">friend</span> _Tidy_guard&lt;vector&gt;;<br><br>    <span class="hljs-keyword">using</span> _Alty        = _Rebind_alloc_t&lt;_Alloc, _Ty&gt;;<br>    <span class="hljs-keyword">using</span> _Alty_traits = allocator_traits&lt;_Alty&gt;;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">static_assert</span>(!_ENFORCE_MATCHING_ALLOCATORS || is_same_v&lt;_Ty, <span class="hljs-keyword">typename</span> _Alloc::value_type&gt;,<br>        _MISMATCHED_ALLOCATOR_MESSAGE(<span class="hljs-string">&quot;vector&lt;T, Allocator&gt;&quot;</span>, <span class="hljs-string">&quot;T&quot;</span>));<br><br>    <span class="hljs-keyword">using</span> value_type      = _Ty;<br>    <span class="hljs-keyword">using</span> allocator_type  = _Alloc;<br>    <span class="hljs-keyword">using</span> pointer         = <span class="hljs-keyword">typename</span> _Alty_traits::pointer;<br>    <span class="hljs-keyword">using</span> const_pointer   = <span class="hljs-keyword">typename</span> _Alty_traits::const_pointer;<br>    <span class="hljs-keyword">using</span> reference       = _Ty&amp;;<br>    <span class="hljs-keyword">using</span> const_reference = <span class="hljs-type">const</span> _Ty&amp;;<br>    <span class="hljs-keyword">using</span> size_type       = <span class="hljs-keyword">typename</span> _Alty_traits::size_type;<br>    <span class="hljs-keyword">using</span> difference_type = <span class="hljs-keyword">typename</span> _Alty_traits::difference_type;<br><br><span class="hljs-comment">// ***</span><br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">using</span> _Scary_val = _Vector_val&lt;<span class="hljs-type">conditional_t</span>&lt;_Is_simple_alloc_v&lt;_Alty&gt;, _Simple_types&lt;_Ty&gt;,<br>        _Vec_iter_types&lt;_Ty, size_type, difference_type, pointer, const_pointer, _Ty&amp;, <span class="hljs-type">const</span> _Ty&amp;&gt;&gt;&gt;;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">using</span> iterator               = _Vector_iterator&lt;_Scary_val&gt;;<br>    <span class="hljs-keyword">using</span> const_iterator         = _Vector_const_iterator&lt;_Scary_val&gt;;<br>    <span class="hljs-keyword">using</span> reverse_iterator       = _STD reverse_iterator&lt;iterator&gt;;<br>    <span class="hljs-keyword">using</span> const_reverse_iterator = _STD reverse_iterator&lt;const_iterator&gt;;<br><br><span class="hljs-comment">// ------------------</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Myvec</span>&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">_Vector_iterator</span> : <span class="hljs-keyword">public</span> _Vector_const_iterator&lt;_Myvec&gt; &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">using</span> _Mybase = _Vector_const_iterator&lt;_Myvec&gt;;<br><span class="hljs-comment">// ***</span><br><br><span class="hljs-comment">// ---------</span><br>_STD_BEGIN<br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Myvec</span>&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">_Vector_const_iterator</span> : <span class="hljs-keyword">public</span> _Iterator_base &#123;<br><span class="hljs-keyword">public</span>:<br><span class="hljs-comment">//***</span><br>    <span class="hljs-keyword">using</span> _Tptr = <span class="hljs-keyword">typename</span> _Myvec::pointer;<br>    _Tptr _ptr;<br><br><span class="hljs-comment">// -----------</span><br></code></pre></td></tr></table></figure>
+
+<p>最终的函数指针落到了 <code>_Scary_val</code> 上，这个类型是通过泛型编程得到的，即 <code>is_same_v&lt;&gt;</code> 判断类型是否是简单类型，然后决定使用是指针还是包装类型。</p>
+<h3 id="array"><a href="#array" class="headerlink" title="array"></a>array</h3><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2017.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>array 的实现跟普通的 C++ 数组一致，都是用的指针类型，如上面的 <code>_M_instance</code> 。MSVC 中也是一样的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-type">size_t</span> _Size&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">array</span> &#123; <span class="hljs-comment">// fixed size array of values</span><br><span class="hljs-keyword">public</span>:<br>    _Ty _Elems[_Size];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2018.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>G4.9 的实现中有名称的定义。</p>
+<h3 id="forward-list"><a href="#forward-list" class="headerlink" title="forward_list"></a>forward_list</h3><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2019.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>单链表 forward_list 的实现，及其迭代器的实现。注意，<code>end()</code> 返回的是 0，也就是 NULL，所以当迭代器走到 NULL 的时候，也就等于走到了 end。因此，这样的定义是可行的。</p>
+<p>MSVC 的实现也是一样的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">_NODISCARD iterator <span class="hljs-title">begin</span><span class="hljs-params">()</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iterator</span>(_Mypair._Myval2._Myhead, _STD <span class="hljs-built_in">addressof</span>(_Mypair._Myval2));<br>  &#125;<br><br><span class="hljs-function">_NODISCARD iterator <span class="hljs-title">end</span><span class="hljs-params">()</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">iterator</span>(<span class="hljs-literal">nullptr</span>, _STD <span class="hljs-built_in">addressof</span>(_Mypair._Myval2));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="deque"><a href="#deque" class="headerlink" title="deque"></a>deque</h3><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2020.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>deque 的底层数据结构，图中的 <code>iterator</code> 构造表示迭代器的位置，deque 的迭代器有四个属性，分为块的开始和结束、当前指针、当前块的指针。因为这种结构存有缓冲区，所以能够以常数时间扩充。</p>
+<p><strong>如果缓冲区满了，是否也要像 vector 那样复制数据</strong>？</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2021.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>谈到了 buffersize 的大小的设定，MSVC 中同样是使用泛型得到的。路径如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Alloc</span> = allocator&lt;_Ty&gt;&gt;<br><span class="hljs-keyword">class</span> deque &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">using</span> _Scary_val = _Deque_val&lt;<span class="hljs-type">conditional_t</span>&lt;_Is_simple_alloc_v&lt;_Alty&gt;, _Deque_simple_types&lt;_Ty&gt;,<br>        _Deque_iter_types&lt;_Ty, <span class="hljs-keyword">typename</span> _Alty_traits::size_type, <span class="hljs-keyword">typename</span> _Alty_traits::difference_type,<br>            <span class="hljs-keyword">typename</span> _Alty_traits::pointer, <span class="hljs-keyword">typename</span> _Alty_traits::const_pointer, _Ty&amp;, <span class="hljs-type">const</span> _Ty&amp;, _Mapptr&gt;&gt;&gt;;<br><br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> _Minimum_map_size = <span class="hljs-number">8</span>;<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> _Block_size       = _Scary_val::_Block_size;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Val_types</span>&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">_Deque_val</span> : <span class="hljs-keyword">public</span> _Container_base12 &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 块大小最高为 16</span><br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> _Block_size = _Bytes &lt;= <span class="hljs-number">1</span> ? <span class="hljs-number">16</span><br>                                     : _Bytes &lt;= <span class="hljs-number">2</span> ? <span class="hljs-number">8</span><br>                                     : _Bytes &lt;= <span class="hljs-number">4</span> ? <span class="hljs-number">4</span><br>                                     : _Bytes &lt;= <span class="hljs-number">8</span> ? <span class="hljs-number">2</span><br>                                                   : <span class="hljs-number">1</span>; <span class="hljs-comment">// elements per block (a power of 2)</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2022.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2023.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2024.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>可以看到，deque 的插入跟 vector 是一样的，也需要复制元素</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2025.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>这部分是 deque 的迭代器是随机访问迭代器的关键。<code>iter += 1</code> 通过移动迭代器，如果在同一个块内，就迭代器，否则先移动块，然后再移动 offset。</p>
+<p><code>first + (offset - ***</code> 时已经切换好了块位置，first 指向的就是当前块的地址，所以只需要移动 node_offset 的距离即可。</p>
+<p>因此，deque 能够使用数组索引符号进行访问。</p>
+<p>从这张图上，我们还可以看出 <code>difference_type</code> 其实是两个指针之间的距离（或者是两个迭代器之间的距离），<code>difference_type(buffer_size())</code> 就是将缓冲区大小的类型转换为 difference_type。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2026.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2027.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>deque 的继承图。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2028.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>说明了 deque 的类成员，及其数据结构</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2029.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>在 MSVC 里的 stack 的定义是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Container</span> = deque&lt;_Ty&gt;&gt;<br><span class="hljs-keyword">class</span> stack &#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>默认选用了 deque 作为容器。</p>
+<p>stack 和 queue 可以选择序列容器作为其数据结构，但是 vector 因为没有 pop_front 方法，所以不建议作为 queue 的数据结构。</p>
+<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2030.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>有两个不同的操作，所以 multi_set 能够实现。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2031.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>在目前的 MSVC 中，<code>_Tree</code> 增加了一个表示是否支持重复的选项，所以 API 有部分不同。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">auto</span> itree = _Tree&lt;_Tset_traits&lt;<span class="hljs-type">int</span>, less&lt;<span class="hljs-type">int</span>&gt;, allocator&lt;<span class="hljs-type">int</span>&gt;, <span class="hljs-literal">false</span>&gt;&gt;(<span class="hljs-built_in">less</span>&lt;<span class="hljs-type">int</span>&gt;());<br><br><span class="hljs-comment">// rbtree which supports duplicate values</span><br><span class="hljs-keyword">auto</span> mtree = _Tree&lt;_Tset_traits&lt;<span class="hljs-type">int</span>, less&lt;<span class="hljs-type">int</span>&gt;, allocator&lt;<span class="hljs-type">int</span>&gt;, <span class="hljs-literal">true</span>&gt;&gt;(<span class="hljs-built_in">less</span>&lt;<span class="hljs-type">int</span>&gt;());<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2032.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>基本结构都是比较类似的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">                                             _Allocator<br>                                               \/<br><span class="hljs-built_in">container</span> ()- | data_structure                  |<br>              | -&gt; _M_impl: _ds_impl | ()- | _ds_impl | ()- | _Node_base | ()- | _Node |<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2033.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>容器 set 大部分都是直接复用了 RBTree 的方法，MSVC 中的实现也是一样的。</p>
+<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2034.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>map 也跟 set 类似，但是 map 中的红黑树的元素是 <code>pair&lt;const int, string&gt;</code> ，const 防止 key 被修改。中间还使用了适配器 <code>select1st</code> ，应该是选择第一个类型（毕竟这里是类声明部分）。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2035.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">less_than_7</span> : std::unary_function&lt;<span class="hljs-type">int</span>, <span class="hljs-type">bool</span>&gt;<br>&#123;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> i &lt; <span class="hljs-number">7</span>; &#125;<br>&#125;;<br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    std::vector&lt;<span class="hljs-type">int</span>&gt; v;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; ++i) v.<span class="hljs-built_in">push_back</span>(i);<br> <br>    std::cout &lt;&lt; std::<span class="hljs-built_in">count_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), std::<span class="hljs-built_in">not1</span>(<span class="hljs-built_in">less_than_7</span>()));<br> <br>    <span class="hljs-comment">/* C++11 solution:</span><br><span class="hljs-comment">        // Cast to std::function&lt;bool (int)&gt; somehow - even with a lambda</span><br><span class="hljs-comment">        std::cout &lt;&lt; std::count_if(v.begin(), v.end(),</span><br><span class="hljs-comment">            std::not1(std::function&lt;bool (int)&gt;([](int i)&#123; return i &lt; 7; &#125;))</span><br><span class="hljs-comment">        );</span><br><span class="hljs-comment">    */</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>顺带学习了一下 <code>decltype(lambda)</code> 。由于 lambda 创建时就必须指定一个变量，所以想要获取一个 lambda 的类型是不行的。如下代码会导致错误：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::function&lt;<span class="hljs-type">bool</span> (<span class="hljs-type">const</span> <span class="hljs-type">int</span>, <span class="hljs-type">const</span> <span class="hljs-type">int</span>)&gt; cmp = [] (<span class="hljs-type">const</span> <span class="hljs-type">int</span> a, <span class="hljs-type">const</span> <span class="hljs-type">int</span> b) &#123;<br>    <span class="hljs-keyword">return</span> a &lt; b;<br>&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">mycmp</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> a &lt; b;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">// set&lt;int, decltype(cmp)&gt; s;  // 正常编译, 运行报错</span><br>set&lt;<span class="hljs-type">int</span>, mycmp&gt; s;  <span class="hljs-comment">// 成功</span><br>s.<span class="hljs-built_in">insert</span>(<span class="hljs-number">1</span>);<br>s.<span class="hljs-built_in">insert</span>(<span class="hljs-number">4</span>);<br>s.<span class="hljs-built_in">insert</span>(<span class="hljs-number">3</span>);<br>s.<span class="hljs-built_in">insert</span>(<span class="hljs-number">2</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2036.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>map 中的 operator[] 先查找到相应位置，如果不存在对应的 key，就执行插入操作，即 <code>insert</code> ，最后返回指向第二个元素的引用。因为 map 中存储的 <code>pair&lt;_Key, _Value&gt;</code> 对象，所以 foreach 循环得到的也是这个对象。</p>
+<p><strong>TODO：没看得太明白，需要再看一遍，以及 msvc 的实现</strong>。</p>
+<p><code>lower_bound</code> ，下确界，返回不小于 value 的元素的位置，也即插入 value 的位置。<code>upper_bound</code> ，上确界，返回第一个大于（不包括等于）value 的元素的位置。或者我们也可以理解，lower_bound（下确界），upper_bound（上确界），都是<strong>返回一个不破坏排序的位置</strong>。这需要<strong>迭代器返回的数据必须是有序的</strong>，因此，排序后的 vector、deque 等，以及内部有序的 set、map 等都可以使用。</p>
+<p>图中还展示了哈希表的 rehash，当容量超过给出的素数哈希长度时，便会发生 rehash。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2037.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">/*</span><br><span class="hljs-comment">* MSVC 的 rehash 的实现: 在不超过 512 的时候按照 8 倍扩容, 超过 512 之后按照 2 倍扩容</span><br><span class="hljs-comment">*/</span><br><br>_NODISCARD size_type _Desired_grow_bucket_count(<span class="hljs-type">const</span> size_type _For_size) <span class="hljs-type">const</span> <span class="hljs-keyword">noexcept</span> &#123;<br>        <span class="hljs-type">const</span> size_type _Old_buckets = <span class="hljs-built_in">bucket_count</span>();<br>        <span class="hljs-type">const</span> size_type _Req_buckets = (_STD max)(_Min_buckets, _Min_load_factor_buckets(_For_size));<br>        <span class="hljs-keyword">if</span> (_Old_buckets &gt;= _Req_buckets) &#123;<br>            <span class="hljs-comment">// we already have enough buckets so there&#x27;s no need to change the count</span><br>            <span class="hljs-keyword">return</span> _Old_buckets;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (_Old_buckets &lt; <span class="hljs-number">512</span> &amp;&amp; _Old_buckets * <span class="hljs-number">8</span> &gt;= _Req_buckets) &#123;<br>            <span class="hljs-comment">// if we are changing the bucket count and have less than 512 buckets, use 8x more buckets</span><br>            <span class="hljs-keyword">return</span> _Old_buckets * <span class="hljs-number">8</span>;<br>        &#125;<br><br>        <span class="hljs-comment">// power of 2 invariant means this will result in at least 2*_Old_buckets after round up in _Forced_rehash</span><br>        <span class="hljs-keyword">return</span> _Req_buckets;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>C++ 中的 unordered_map 使用哈希函数将键值对映射到一个哈希表中，这样就可以以常数时间复杂度实现查找操作。unordered_map 默认使用 std::hash<Key> 类型的哈希函数，可以通过模板参数自定义哈希函数。unordered_map 是无序的，查找效率比 map 高，但是无序性也意味着每次插入都可能会造成哈希表中所有元素的重新分布，因此插入操作的时间复杂度可能变成 O(n) 。</p>
+<p>std::hash<Key> 类型的哈希函数是 C++ 标准库提供的一种常见的哈希函数实现，它可以用于任何类型的 key，只需要 key 类型有符合 <code>std::hash</code> 的接口要求：提供一个接受一个 key 类型，返回一个 std::size_t 整数的函数，即 <code>std::size_t operator() (Key const &amp;key) const</code> 。具体的实现可以是任意的，只要能够保证在一定范围内，不同的 key 会得到不同的哈希值即可。如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Person</span> &#123;<br>    string name = <span class="hljs-string">&quot;Peter&quot;</span>;<br>    <span class="hljs-type">int</span> age = <span class="hljs-number">10</span>;<br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">PersonHash</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(Person <span class="hljs-type">const</span> &amp;p)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> p.name.<span class="hljs-built_in">length</span>() + p.age;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">PersonEqual</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(Person <span class="hljs-type">const</span> &amp;p1, Person <span class="hljs-type">const</span> &amp;p2)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> p1.name == p2.name &amp;&amp; p1.age == p2.age;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> </span><br><span class="hljs-function"></span>&#123;<br>    unordered_map&lt;Person, <span class="hljs-type">int</span>, PersonHash, PersonEqual&gt; personToDepart;<br>    personToDepart[Person&#123;<span class="hljs-string">&quot;Tom&quot;</span>, <span class="hljs-number">20</span>&#125;] = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> personDepartPair : personToDepart) &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;Name: &quot;</span> &lt;&lt; personDepartPair.first.name <br>          &lt;&lt; <span class="hljs-string">&quot;, Age: &quot;</span> &lt;&lt; personDepartPair.first.age <br>          &lt;&lt; <span class="hljs-string">&quot;, Department: &quot;</span> &lt;&lt; personDepartPair.second &lt;&lt; endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>由于可能有多个 key 映射到同一个哈希值上，叫做哈希冲突。为了解决哈希冲突，一般有两种方法：开放地址法和拉链法，图中展示的就是拉链法。</p>
+<p>开放地址法是当发生哈希冲突时，<strong>使用另一个地址来存储元素，而这个地址是在哈希函数的基础上增加一个大于 0 的数的偏移量</strong>，这个偏移量称为解决冲突的方法。拉链法是<strong>在每个地址处存储一个指针，指向一个链表</strong>，存储着所有冲突的元素，当有新元素插入时，将新元素插入此链表中。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2038.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>图中展示了 hashtable 的成员变量，以及哈希表 <code>buckets</code> 。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2039.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>对于 int 类型的数据，散列值就等于本身；对于 string 类型的数据，散列值等于上面给出的算法。对于 Person 类的实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">PersonHash</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(Person <span class="hljs-type">const</span> &amp;p)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-type">size_t</span> hashCode = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; c : p.name) &#123;<br>            hashCode = <span class="hljs-number">5</span> * hashCode + c;<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> hashCode + p.age;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>经过测试，插入顺序和迭代器访问的顺序是不一样的。由于哈希冲突的存在，先插入的数据可以被先访问（在链表内）。因此，它被叫做 <code>unordered_map</code> 。</p>
+<hr>
+<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2040.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>迭代器 iterator 有五种类型，如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">input_iterator_tag</span> &#123;&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">output_iterator_tag</span> &#123;&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">forward_iterator_tag</span> : input_iterator_tag &#123;&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">bidirectional_iterator_tag</span> : forward_iterator_tag &#123;&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">random_access_iterator_tag</span> : bidirectional_iterator_tag &#123;&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2041.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>最简单的迭代器就是输入输出迭代器，输入输出最简单的应用就是输入输出流。<strong>输入迭代器只能前进和读取，不能写入；输出迭代器只能后退和写入，不能读取。</strong></p>
+<p>各个迭代器的例子：</p>
+<ul>
+<li>Input Iterator：输入流，只能读取，支持 ++、&#x3D;&#x3D;、!&#x3D;</li>
+<li>Forward Iterator：单链表，可写入可读取，只能 ++</li>
+<li>Bidirectional Iterator：双向链表，可读取可写入，可++、–</li>
+<li>RandomAccess Iterator：数组，可读取可写入，可 ++、- -、[]、+n</li>
+<li>Output Iterator：输出流，只能写入，++</li>
+</ul>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2042.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>类型的不同，导致了实现的不同。随机访问迭代器可以直接相减。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2043.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>迭代器复制，分为以下情况：</p>
+<ul>
+<li><code>char*</code> ：一个 char 是一字节，所以最符合内存的结构要求。（这里的示意换成 short 也可以）</li>
+<li><code>T*</code> ：指针全都在内存中，可能可以直接复制<ul>
+<li><code>has trivial op=()</code> ：存在简单的拷贝赋值函数，应该是表示这个类型是一个 POD（plain old data）结构</li>
+<li><code>has non-trival op=()</code> ：不是 POD，可能有虚函数</li>
+</ul>
+</li>
+<li><code>RandomAccessIterator</code> ：可以直接相减得到距离，不需要判断指针相等，有利于编译器优化</li>
+<li><code>InputIterator</code> ：只能判断指针是否相等，必须等到运行时</li>
+</ul>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2044.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2045.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>output iterator 不能直接读取，所以要先解引用，然后再写入。forward iterator 没有这个限制。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2046.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>这部分已经是暗示了，基本上指名是什么迭代器就必须用什么迭代器。</p>
+<h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><p>后面是一部分函数的介绍：</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2047.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>不带有 count 的容器都是序列容器，而不是关联式容器。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2048.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>注意：unordered_set 等四个哈希表容器的顺序是<strong>基于哈希顺序和插入顺序</strong></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2049.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2050.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<h2 id="Functors"><a href="#Functors" class="headerlink" title="Functors"></a>Functors</h2><p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2051.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2052.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>看到这部分的 binary_function，以及下面的 <code>operator()</code> ，其实跟 lambda 差不多：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">MyLess</span> : <span class="hljs-keyword">public</span> binary_function&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>, <span class="hljs-type">bool</span>&gt; &#123;<br>  <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; a, <span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; b)</span> <span class="hljs-type">const</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a &lt; b;<br>  &#125;<br>&#125;;<br><br>std::function&lt;<span class="hljs-type">bool</span> (<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)&gt; myLess = [] (<span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; a, <span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; b) &#123;<br>  <span class="hljs-keyword">return</span> a &lt; b;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>缺点可能是 std::function 目前只修饰 lambda，而 binary_function 可以作为基类。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2053.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2054.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>容器适配器的含义就是通过该适配器的包装，使得容器能够拥有某些额外的功能，或者说抽象出一些额外的特性。vector 可以被包装成一个 stack，deque 去掉双向的条件，也能变成一个单向队列 queue。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2055.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2056.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>函数适配器修饰函数（这里的函数是广义的，能够调用 <code>operator()</code> 的仿函数、函数指针），使得函数的一些性质发生变化。上面两张图描述了 <code>not1(bind2nd(less&lt;int&gt;(), 40));</code> 中的两个函数适配器，及其实现。</p>
+<p>函数适配器能够在运行时改变函数的性质，而不需要修改函数本身的内容。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2057.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>新型的适配器 bind，可以实现以下操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp">vector&lt;<span class="hljs-type">int</span>&gt; v;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">50</span>; i++)  v.<span class="hljs-built_in">push_back</span>(i);<br><br>    <span class="hljs-comment">// placeholders 是占位符, 表示占用到输入的哪个参数上</span><br><br>    <span class="hljs-comment">// a \in (-\inf, b)</span><br>    cout &lt;&lt; <span class="hljs-built_in">count_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-built_in">bind</span>([] (<span class="hljs-type">int</span>&amp; a, <span class="hljs-type">int</span>&amp;b) &#123;<br>        <span class="hljs-keyword">return</span> a &lt; b;<br>    &#125;, placeholders::_1, <span class="hljs-number">40</span>)) &lt;&lt; endl;<br><br>    cout &lt;&lt; <span class="hljs-built_in">count_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-built_in">bind</span>(<span class="hljs-built_in">less</span>&lt;<span class="hljs-type">int</span>&gt;(), placeholders::_1, <span class="hljs-number">40</span>)) &lt;&lt; endl;<br><br>    <span class="hljs-comment">// a \in [c, b)</span><br>    cout &lt;&lt; <span class="hljs-built_in">count_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-built_in">bind</span>([] (<span class="hljs-type">int</span>&amp; a, <span class="hljs-type">int</span>&amp; b, <span class="hljs-type">int</span>&amp; c) &#123;<br>        <span class="hljs-keyword">return</span> a &lt; b &amp;&amp; a &gt;= c;<br>    &#125;, placeholders::_1, <span class="hljs-number">40</span>, <span class="hljs-number">14</span>)) &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+
+<p>感觉如果通过手写 lambda 的方式，可以达到更高效的使用。</p>
+<p>下面是 MSVC 的实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ret</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Fx</span>, <span class="hljs-keyword">class</span>... _Types&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">_Binder</span> : <span class="hljs-keyword">public</span> _Binder_result_type&lt;_Ret, _Fx&gt;::type &#123; <span class="hljs-comment">// wrap bound callable object and arguments</span><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">using</span> _Seq    = index_sequence_for&lt;_Types...&gt;;<br>    <span class="hljs-keyword">using</span> _First  = <span class="hljs-type">decay_t</span>&lt;_Fx&gt;;<br>    <span class="hljs-keyword">using</span> _Second = tuple&lt;<span class="hljs-type">decay_t</span>&lt;_Types&gt;...&gt;;<br><br>    _Compressed_pair&lt;_First, _Second&gt; _Mypair;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">constexpr</span> <span class="hljs-keyword">explicit</span> _Binder(_Fx&amp;&amp; _Func, _Types&amp;&amp;... _Args)<br>        : _Mypair(_One_then_variadic_args_t&#123;&#125;, _STD forward&lt;_Fx&gt;(_Func), _STD forward&lt;_Types&gt;(_Args)...) &#123;&#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _CALL_BINDER                                                                  \</span><br><span class="hljs-meta">    _Call_binder(_Invoker_ret<span class="hljs-string">&lt;_Ret&gt;</span>&#123;&#125;, _Seq&#123;&#125;, _Mypair._Get_first(), _Mypair._Myval2, \</span><br><span class="hljs-meta">        _STD forward_as_tuple(_STD forward<span class="hljs-string">&lt;_Unbound&gt;</span>(_Unbargs)...))</span><br><br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... _Unbound&gt;<br>    <span class="hljs-function">_CONSTEXPR20 <span class="hljs-keyword">auto</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(_Unbound&amp;&amp;... _Unbargs)</span> <span class="hljs-title">noexcept</span><span class="hljs-params">(<span class="hljs-keyword">noexcept</span>(_CALL_BINDER))</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(_CALL_BINDER)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> _CALL_BINDER;<br>    &#125;<br><br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... _Unbound&gt;<br>    <span class="hljs-function">_CONSTEXPR20 <span class="hljs-keyword">auto</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(_Unbound&amp;&amp;... _Unbargs)</span> <span class="hljs-type">const</span> <span class="hljs-title">noexcept</span><span class="hljs-params">(<span class="hljs-keyword">noexcept</span>(_CALL_BINDER))</span></span><br><span class="hljs-function">        -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(_CALL_BINDER)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> _CALL_BINDER;<br>    &#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">undef</span> _CALL_BINDER</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><code>count_if</code> 中的第三个参数肯定会是 BinaryOperation，所以 <code>bind</code> 的返回值也肯定需要是一个重载了函数运算符 <code>operator()</code> 的类型。通过 C++11 的多变量泛型，支持了同时输入多个参数。</p>
+<p><strong>TODO</strong>：<code>forward</code> 的实现是如何的？</p>
+<p><code>forward</code> 的实现是通过右值引用和类型推断来实现的。它是一个模板函数，它可以接受一个参数，并且返回一个引用，该引用类型与传入的参数类型相同。如果传入的参数是左值，则返回一个左值引用，如果传入的参数是右值，则返回一个右值引用。</p>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function">T&amp;&amp; <span class="hljs-title">forward</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::type&amp; t)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">static_cast</span>&lt;T&amp;&amp;&gt;(t);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>std::remove_reference</code> 可以去掉引用的类型，然后使用 <code>static_cast</code> 来保持原有的引用类型，这样就可以实现 <code>forward</code> 的功能了。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2058.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>迭代器适配器，给迭代器加上限制。反转适配器，可以由 <code>begin()</code> 得到 <code>rbegin()</code> 。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2059.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>插入适配器，插入适配器定义自己的 category 一定是一个 output_iterator_tag，所以只能前进和写入，其实是符合使用要求的。<code>inserter</code> 通过迭代器 insert 返回的迭代器，不断更新自己类内部的迭代器，从而实现一直贴着最新的插入位置。</p>
+<p>MSVC 的实现一模一样：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Container</span>&gt;<br><span class="hljs-function">_NODISCARD _CONSTEXPR20 insert_iterator&lt;_Container&gt; <span class="hljs-title">inserter</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">  _Container&amp; _Cont, <span class="hljs-keyword">typename</span> _Container::iterator _Where)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">insert_iterator</span>&lt;_Container&gt;(_Cont, _Where);<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Container</span>&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">insert_iterator</span> &#123; <span class="hljs-comment">// wrap inserts into container as output iterator</span><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">using</span> iterator_category = output_iterator_tag;<br>    <span class="hljs-keyword">using</span> value_type        = <span class="hljs-type">void</span>;<br>    <span class="hljs-keyword">using</span> pointer           = <span class="hljs-type">void</span>;<br>    <span class="hljs-keyword">using</span> reference         = <span class="hljs-type">void</span>;<br><br>    <span class="hljs-function">_CONSTEXPR20 <span class="hljs-title">insert_iterator</span><span class="hljs-params">(_Container&amp; _Cont, _Wrapped_iter _Where)</span></span><br><span class="hljs-function">        : container(_STD addressof(_Cont)), iter(_STD move(_Where)) &#123;</span>&#125;<br><br>    _CONSTEXPR20 insert_iterator&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> <span class="hljs-keyword">typename</span> _Container::value_type&amp; _Val) &#123;<br>        <span class="hljs-comment">// insert into container and increment stored iterator</span><br>        iter = container-&gt;<span class="hljs-built_in">insert</span>(iter, _Val);<br>        ++iter;<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br><br>    _CONSTEXPR20 insert_iterator&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-keyword">typename</span> _Container::value_type&amp;&amp; _Val) &#123; <span class="hljs-comment">// push value into container</span><br>        iter = container-&gt;<span class="hljs-built_in">insert</span>(iter, _STD <span class="hljs-built_in">move</span>(_Val));<br>        ++iter;<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2060.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>输出流适配器，可以按照迭代器的性质，把数据输出到输出流中。这里的输出流可以包括，string 输出流、标准输出流、文件输出流。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">stringstream ss;<br><span class="hljs-function">ostream_iterator&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">osi</span><span class="hljs-params">(ss, <span class="hljs-string">&quot; &quot;</span>)</span></span>;<br><span class="hljs-built_in">copy</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), osi);<br>cout &lt;&lt; ss.<span class="hljs-built_in">str</span>() &lt;&lt; endl;<br><br><span class="hljs-function">ofstream <span class="hljs-title">ofs</span><span class="hljs-params">(<span class="hljs-string">&quot;test.txt&quot;</span>, ios_base::app)</span></span>;  <span class="hljs-comment">// append mode</span><br><span class="hljs-function">ostream_iterator&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">fosi</span><span class="hljs-params">(ofs, <span class="hljs-string">&quot; &quot;</span>)</span></span>;<br><span class="hljs-built_in">copy</span>(v.<span class="hljs-built_in">rbegin</span>(), v.<span class="hljs-built_in">rend</span>(), fosi);<br></code></pre></td></tr></table></figure>
+
+<p>注意：这些输出流本身没有带对应的迭代器，需要自己定义，然后才能调用。</p>
+<p>MSVC 的实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Elem</span> = <span class="hljs-type">char</span>, <span class="hljs-keyword">class</span> _Traits = char_traits&lt;_Elem&gt;&gt;<br><span class="hljs-keyword">class</span> ostream_iterator &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">using</span> iterator_category = output_iterator_tag;<br>    <span class="hljs-keyword">using</span> value_type        = <span class="hljs-type">void</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> __cpp_lib_concepts</span><br>    <span class="hljs-keyword">using</span> difference_type = <span class="hljs-type">ptrdiff_t</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-keyword">using</span> difference_type = <span class="hljs-type">void</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-keyword">using</span> pointer      = <span class="hljs-type">void</span>;<br>    <span class="hljs-keyword">using</span> reference    = <span class="hljs-type">void</span>;<br>    <span class="hljs-keyword">using</span> char_type    = _Elem;<br>    <span class="hljs-keyword">using</span> traits_type  = _Traits;<br>    <span class="hljs-keyword">using</span> ostream_type = basic_ostream&lt;_Elem, _Traits&gt;;<br><br>    <span class="hljs-built_in">ostream_iterator</span>(ostream_type&amp; _Ostr, <span class="hljs-type">const</span> _Elem* <span class="hljs-type">const</span> _Delim = <span class="hljs-literal">nullptr</span>) <span class="hljs-keyword">noexcept</span> <span class="hljs-comment">/* strengthened */</span><br>        : _Mydelim(_Delim), _Myostr(_STD <span class="hljs-built_in">addressof</span>(_Ostr)) &#123;&#125;<br><br>    ostream_iterator&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> _Ty&amp; _Val) &#123; <span class="hljs-comment">// insert value into output stream, followed by delimiter</span><br>        *_Myostr &lt;&lt; _Val;<br>        <span class="hljs-keyword">if</span> (_Mydelim) &#123;<br>            *_Myostr &lt;&lt; _Mydelim;<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>实际上就是调用输出流的重载 <code>operator&lt;&lt;</code> 函数进行输出，如果有分隔符，就调用分隔符。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2061.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>输入流迭代器。原理跟输出流迭代器类似，测试如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">istream_iterator&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">iis</span><span class="hljs-params">(cin)</span>, eof</span>;<br><span class="hljs-built_in">copy</span>(iis, eof, fosi);<br></code></pre></td></tr></table></figure>
+
+<p>读取输入流的数据，然后输出的文件中。</p>
+<p>同样，我们也可以实现直接插入数据到 vector 的迭代器中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">copy</span>(iis, eof, <span class="hljs-built_in">inserter</span>(v, v.<span class="hljs-built_in">end</span>()));<br></code></pre></td></tr></table></figure>
+
+<p>一定需要添加 <code>inserter</code> 适配器，因为不加的话，<code>v.end()</code> 不会随着数据的增加而不断移动。</p>
+<hr>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2062.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 万能 hash 函数</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;<br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">hash_combine</span><span class="hljs-params">(<span class="hljs-type">size_t</span>&amp; seed, <span class="hljs-type">const</span> T&amp; t)</span> </span>&#123;<br>    seed ^= std::<span class="hljs-built_in">hash</span>&lt;T&gt;()._Do_hash(t) + <span class="hljs-number">0x9e3779b9</span> + (seed &lt;&lt; <span class="hljs-number">6</span>) + (seed &gt;&gt; <span class="hljs-number">2</span>);<br>&#125;<br><br><span class="hljs-comment">// 动态参数数量 + 泛型</span><br><span class="hljs-comment">// 通过参数动态, 可以同时支持多个参数</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;<br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">hash_val</span><span class="hljs-params">(<span class="hljs-type">size_t</span>&amp; seed, <span class="hljs-type">const</span> T&amp; t)</span> </span>&#123;<br>    <span class="hljs-built_in">hash_combine</span>(seed, t);<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span>... Types&gt;<br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">hash_val</span><span class="hljs-params">(<span class="hljs-type">size_t</span>&amp; seed, <span class="hljs-type">const</span> T&amp; t, <span class="hljs-type">const</span> Types&amp;... args)</span> </span>&#123;<br>    <span class="hljs-built_in">hash_combine</span>(seed, t);<br>    <span class="hljs-built_in">hash_val</span>(seed, args...);<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... Types&gt;<br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">size_t</span> <span class="hljs-title">hash_val</span><span class="hljs-params">(<span class="hljs-type">const</span> Types&amp;... args)</span> </span>&#123;<br>    <span class="hljs-type">size_t</span> seed = <span class="hljs-number">0</span>;<br>    <span class="hljs-built_in">hash_val</span>(seed, args...);<br>    <span class="hljs-keyword">return</span> seed;<br>&#125;<br><br><span class="hljs-comment">// =========================================</span><br><br><span class="hljs-comment">// 类定义</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Person</span> &#123;<br>    <span class="hljs-built_in">Person</span>(string name, <span class="hljs-type">int</span> age) : <span class="hljs-built_in">name</span>(name), <span class="hljs-built_in">age</span>(age) &#123;&#125;<br><br>    string name;<br>    <span class="hljs-type">int</span> age;<br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">NaivePersonHash</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">const</span> Person&amp; p)</span> <span class="hljs-type">const</span> </span>&#123;<br>        std::hash&lt;string&gt; h1;<br>        std::hash&lt;<span class="hljs-type">int</span>&gt; h2;<br><br>        <span class="hljs-keyword">return</span> h1._Do_hash(p.name) + h2._Do_hash(p.age);<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">PersonHash</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">const</span> Person&amp; p)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">hash_val</span>(p.name, p.age);<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>万能 hash 函数中的 magic number 就是黄金分割中的数，黄金比例 $\frac{1+\sqrt{5}}{2}$，转换为 16 进制，为 <code>1.9E3779B97F...</code> 。算法通过泛型实现了同时输入多个参数，只要 <code>std::hash&lt;&gt;()</code> 支持这个哈希值，那就可以实现。</p>
+<p>还写了一个分割器：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">char</span> Sign, <span class="hljs-type">int</span> num&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Divider</span> &#123; &#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">char</span> Sign=<span class="hljs-string">&#x27;-&#x27;</span>, <span class="hljs-type">int</span> num=<span class="hljs-number">50</span>&gt;<br>std::ostream&amp; <span class="hljs-keyword">operator</span>&lt;&lt;(std::ostream&amp; os, Divider&lt;Sign, num&gt;) &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; num; i++)  os &lt;&lt; Sign;<br>    <span class="hljs-keyword">return</span> os;<br>&#125;<br><br><span class="hljs-comment">// 调用</span><br>cout &lt;&lt; <span class="hljs-built_in">Divider</span>&lt;<span class="hljs-string">&#x27;-&#x27;</span>, <span class="hljs-number">50</span>&gt;() &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2063.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>偏特化指的是 <code>hash&lt;T&gt;</code> 不是一个完整的类型，还需要 <code>typename</code> 进行指定。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2064.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>大部分讲解了 tuple 的用例，下面利用泛型打印 tuple 元素的实现很重要（<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/6245735/pretty-print-stdtuple">so 上抄的</a>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> Type, <span class="hljs-type">unsigned</span> N, <span class="hljs-type">unsigned</span> Last&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">tuple_printer</span> &#123;<br><br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">print</span><span class="hljs-params">(std::ostream&amp; out, <span class="hljs-type">const</span> Type&amp; value)</span> </span>&#123;<br>        out &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;N&gt;(value) &lt;&lt; <span class="hljs-string">&quot;, &quot;</span>;<br>        tuple_printer&lt;Type, N + <span class="hljs-number">1</span>, Last&gt;::<span class="hljs-built_in">print</span>(out, value);<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> Type, <span class="hljs-type">unsigned</span> N&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">tuple_printer</span>&lt;Type, N, N&gt; &#123;<br><br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">print</span><span class="hljs-params">(std::ostream&amp; out, <span class="hljs-type">const</span> Type&amp; value)</span> </span>&#123;<br>        out &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;N&gt;(value);<br>    &#125;<br><br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span>...Types&gt;<br>std::ostream&amp; <span class="hljs-keyword">operator</span>&lt;&lt;(std::ostream&amp; os, std::tuple&lt;Types...&gt; t) &#123;<br>    os &lt;&lt; <span class="hljs-string">&quot;(&quot;</span>;<br>    tuple_printer&lt;std::tuple&lt;Types...&gt;, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>...(Types) - <span class="hljs-number">1</span>&gt;::<span class="hljs-built_in">print</span>(os, t);<br>    <span class="hljs-keyword">return</span> os &lt;&lt; <span class="hljs-string">&quot;)&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>通过泛型上给定的开始和结束的两个参数，当两个参数相等时就调用第二个 print。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2065.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>MSVC 上的实现不一样，课件上的实现是通过继承实现的。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2066.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>类型分析，traits 特性。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">type_traits_output</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; x)</span></span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;intype traits for type : &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(T).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_void\t&quot;</span> &lt;&lt; std::is_void&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_integral\t&quot;</span> &lt;&lt; std::is_integral&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_floating _point\t&quot;</span> &lt;&lt; std::is_floating_point&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_arithmetic\t&quot;</span>&lt;&lt; std::is_arithmetic&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_signed\t&quot;</span> &lt;&lt; std::is_signed&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_unsigned\t&quot;</span> &lt;&lt; std::is_unsigned&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_const\t&quot;</span> &lt;&lt; std::is_const&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_volatile\t&quot;</span> &lt;&lt; std::is_volatile&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_class\t&quot;</span> &lt;&lt; std::is_class&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_function\t&quot;</span> &lt;&lt; std::is_function&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_reference\t&quot;</span> &lt;&lt; std::is_reference&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_lvalue_ reference\t&quot;</span> &lt;&lt; std::is_lvalue_reference&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_rvalue_reference\t&quot;</span> &lt;&lt; std::is_rvalue_reference&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt;<span class="hljs-string">&quot;is_pointer\t&quot;</span> &lt;&lt; std::is_pointer&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_member _pointer\t&quot;</span> &lt;&lt; std::is_member_pointer&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_member_object_pointer\t&quot;</span> &lt;&lt; std::is_member_object_pointer&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_member_function_pointer\t&quot;</span> &lt;&lt; std::is_member_function_pointer&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_fundamental\t&quot;</span> &lt;&lt; std::is_fundamental&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt;<span class="hljs-string">&quot;is_scalar\t&quot;</span> &lt;&lt; std::is_scalar&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_object\t&quot;</span> &lt;&lt; std::is_object&lt;T&gt;::value &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;is_compound\t&quot;</span> &lt;&lt; std::is_compound&lt;T&gt;::value &lt;&lt; std::endl;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>注意，以下二者调用的结果是相同的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">cout &lt;&lt; std::is_floating_point&lt;T&gt;::value &lt;&lt; endl;<br>cout &lt;&lt; std::is_floating_point_v&lt;T&gt; &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2067.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>type traits 的实现，基于 MSVC 的代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// is_void_v</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br>_INLINE_VAR <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> is_void_v = is_same_v&lt;<span class="hljs-type">remove_cv_t</span>&lt;_Ty&gt;, <span class="hljs-type">void</span>&gt;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">remove_cv</span>&lt;<span class="hljs-type">const</span> <span class="hljs-keyword">volatile</span> _Ty&gt; &#123;<br>    <span class="hljs-keyword">using</span> type = _Ty;<br><br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>&gt; <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Fn</span>&gt;<br>    <span class="hljs-keyword">using</span> _Apply = <span class="hljs-type">const</span> <span class="hljs-keyword">volatile</span> _Fn&lt;_Ty&gt;;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br><span class="hljs-keyword">using</span> <span class="hljs-type">remove_cv_t</span> = <span class="hljs-keyword">typename</span> remove_cv&lt;_Ty&gt;::type;<br><br>_INLINE_VAR <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> is_same_v = __is_same(_Ty1, _Ty2);<br></code></pre></td></tr></table></figure>
+
+<p>实现细节：</p>
+<ul>
+<li><code>remove_cv</code> ：去除 const volatile 限定符，通过泛型，以及在泛型名前加上 <code>&lt;const volatile _Ty&gt;</code> 实现。</li>
+<li><code>is_same_v</code> ：编译器实现细节</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// is_integral_v</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">bool</span> _First_value, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_First</span>, <span class="hljs-keyword">class</span>... _Rest&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">_Disjunction</span> &#123; <span class="hljs-comment">// handle true trait or last trait</span><br>    <span class="hljs-keyword">using</span> type = _First;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_False</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Next</span>, <span class="hljs-keyword">class</span>... _Rest&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">_Disjunction</span>&lt;<span class="hljs-literal">false</span>, _False, _Next, _Rest...&gt; &#123; <span class="hljs-comment">// first trait is false, try the next trait</span><br>    <span class="hljs-keyword">using</span> type = <span class="hljs-keyword">typename</span> _Disjunction&lt;_Next::value, _Next, _Rest...&gt;::type;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... _Traits&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">disjunction</span> : false_type &#123;&#125;; <span class="hljs-comment">// If _Traits is empty, false_type</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_First</span>, <span class="hljs-keyword">class</span>... _Rest&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">disjunction</span>&lt;_First, _Rest...&gt; : _Disjunction&lt;_First::value, _First, _Rest...&gt;::type &#123;<br>    <span class="hljs-comment">// the first true trait in _Traits, or the last trait if none are true</span><br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... _Traits&gt;<br>_INLINE_VAR <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> disjunction_v = disjunction&lt;_Traits...&gt;::value;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-keyword">class</span>... _Types&gt;<br>_INLINE_VAR <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> _Is_any_of_v = <span class="hljs-comment">// true if and only if _Ty is in _Types</span><br>    disjunction_v&lt;is_same&lt;_Ty, _Types&gt;...&gt;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br>_INLINE_VAR <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> is_integral_v = _Is_any_of_v&lt;<span class="hljs-type">remove_cv_t</span>&lt;_Ty&gt;, <span class="hljs-type">bool</span>, <span class="hljs-type">char</span>, <span class="hljs-type">signed</span> <span class="hljs-type">char</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span>,<br>    <span class="hljs-type">wchar_t</span>,<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> __cpp_char8_t</span><br>    <span class="hljs-type">char8_t</span>,<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">// __cpp_char8_t</span></span><br>    <span class="hljs-type">char16_t</span>, <span class="hljs-type">char32_t</span>, <span class="hljs-type">short</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>, <span class="hljs-type">int</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>, <span class="hljs-type">long</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt;;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>泛型传递，应该是泛型编程中的 <code>for</code></li>
+<li><code>disjunction_v</code> ：SQL 中的连接，即如果有一个为真，那么就成功</li>
+<li><code>disjunction_v&lt;is_ame&lt;_Ty, _Types&gt;...&gt;</code> ：<code>…</code> 表示泛型的推导，表示不断传递下去，作为 for</li>
+<li>上面的三个 <code>_Disjunction</code> 应该起到了 if、else 的基础，同时还有部分 for 的功能</li>
+</ul>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2068.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>MSVC 与上图一样，全都使用的是编译器的实现。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2069.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>MSVC 的实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>, <span class="hljs-keyword">class</span> = <span class="hljs-type">void</span>&gt;<br><span class="hljs-keyword">struct</span> _Add_reference &#123; <span class="hljs-comment">// add reference (non-referenceable type)</span><br>    <span class="hljs-keyword">using</span> _Lvalue = _Ty;<br>    <span class="hljs-keyword">using</span> _Rvalue = _Ty;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">_Add_reference</span>&lt;_Ty, <span class="hljs-type">void_t</span>&lt;_Ty&amp;&gt;&gt; &#123; <span class="hljs-comment">// (referenceable type)</span><br>    <span class="hljs-keyword">using</span> _Lvalue = _Ty&amp;;<br>    <span class="hljs-keyword">using</span> _Rvalue = _Ty&amp;&amp;;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br><span class="hljs-keyword">using</span> <span class="hljs-type">add_lvalue_reference_t</span> = <span class="hljs-keyword">typename</span> _Add_reference&lt;_Ty&gt;::_Lvalue;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br>_INLINE_VAR <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> is_move_assignable_v = __is_assignable(<span class="hljs-type">add_lvalue_reference_t</span>&lt;_Ty&gt;, _Ty);<br></code></pre></td></tr></table></figure>
+
+<p>通过添加两个引用，来判断跟原来的类型是否相同。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2070.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2071.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>G2.9 和 G4.9 的实现不同，一个是普通的继承，一个利用了大量的泛型技术。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2072.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>C++ 11 引入的移动语义对效率的提升巨大。特别是很多场景下，并不需要保持多个变量的拷贝。也因此，类似 Java、python 都是默认引用，而不是值传递。</p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2073.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p><img src="/%E8%AF%BE%E4%BB%B6%E6%88%AA%E5%9B%BE%206524c0a67b914193a89bd6400eb2a3f6/Untitled%2074.png" srcset="/img/loading.gif" lazyload alt="Untitled"></p>
+<p>vector 的拷贝构造和移动构造的区别：</p>
+<ul>
+<li>拷贝构造：分配头节点地址，拷贝数据，分配尾节点地址</li>
+<li>移动构造：使用了三个 swap 实现，只需要交换指针的地址即可，非常简单</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>侯捷CPP-STL</div>
+      <div>http://hebangwen.github.io/2024/03/13/侯捷CPP-STL/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>何榜文</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
