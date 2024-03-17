@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="https://avatars.githubusercontent.com/u/32662175">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="何榜文">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Programming by STL条款43：尽量用算法调用代替手写循环 如果你要做的是算法已经提供了的，或者非常接近于它提供的，调用泛型算法更清晰。 如果循环里要做的事非常简单，但调用算法时却需要使用绑定和适配器或者需要独立的仿函数类，你恐怕还是写循环比较好。 最后，如果你在循环里做的事相当长或相当复杂，天平再次倾向于算法。  条款44：尽量用成员函数代替同名的算法关联容器提供了count、fi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Effective STL - 06 - Programming by STL">
+<meta property="og:url" content="http://hebangwen.github.io/2024/03/17/Programming-by-STL/index.html">
+<meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
+<meta property="og:description" content="Programming by STL条款43：尽量用算法调用代替手写循环 如果你要做的是算法已经提供了的，或者非常接近于它提供的，调用泛型算法更清晰。 如果循环里要做的事非常简单，但调用算法时却需要使用绑定和适配器或者需要独立的仿函数类，你恐怕还是写循环比较好。 最后，如果你在循环里做的事相当长或相当复杂，天平再次倾向于算法。  条款44：尽量用成员函数代替同名的算法关联容器提供了count、fi">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-17T12:42:45.000Z">
+<meta property="article:modified_time" content="2024-03-17T12:42:47.461Z">
+<meta property="article:author" content="何榜文">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="STL">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Effective STL - 06 - Programming by STL - Yet Another 何榜文&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"hebangwen.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yet Another 何榜文&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/todolist/" target="_self">
+                <i class="iconfont icon-plan"></i>
+                <span>待办事项</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>联系我</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Effective STL - 06 - Programming by STL"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-17 20:42" pubdate>
+          2024年3月17日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Effective STL - 06 - Programming by STL</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Programming-by-STL"><a href="#Programming-by-STL" class="headerlink" title="Programming by STL"></a>Programming by STL</h1><h2 id="条款43：尽量用算法调用代替手写循环"><a href="#条款43：尽量用算法调用代替手写循环" class="headerlink" title="条款43：尽量用算法调用代替手写循环"></a>条款43：尽量用算法调用代替手写循环</h2><ul>
+<li>如果你要做的是算法已经提供了的，或者非常接近于它提供的，调用泛型算法更清晰。</li>
+<li>如果循环里要做的事非常简单，但调用算法时却需要使用绑定和适配器或者需要独立的仿函数类，你恐怕还是写循环比较好。</li>
+<li>最后，如果你在循环里做的事相当长或相当复杂，天平再次倾向于算法。</li>
+</ul>
+<h2 id="条款44：尽量用成员函数代替同名的算法"><a href="#条款44：尽量用成员函数代替同名的算法" class="headerlink" title="条款44：尽量用成员函数代替同名的算法"></a>条款44：尽量用成员函数代替同名的算法</h2><p><strong>关联容器提供了count、find、lower_bound、upper_bound和equal_range，而list提供了remove、remove_if、unique、sort、merge和reverse。</strong>大多数情况下，你应该用成员函数代替算法。这样做有两个理由。首先，成员函数更快。其次，比起算法来，它们与容器结合得更好（尤其是关联容器）。那是因为同名的算法和成员函数通常并不是是一样的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp">set&lt;<span class="hljs-type">int</span>&gt; s;<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1&#x27;000&#x27;000</span>; i++)  s.<span class="hljs-built_in">insert</span>(i);<br><br><span class="hljs-comment">// 1ms</span><br><span class="hljs-comment">// 使用 rand 避免缓存</span><br><span class="hljs-built_in">benchmark</span>([&amp;s] () &#123;<br>    <span class="hljs-keyword">auto</span> it = s.<span class="hljs-built_in">find</span>(<span class="hljs-built_in">rand</span>() % s.<span class="hljs-built_in">size</span>());<br>&#125;);<br><br><span class="hljs-comment">// 1809ms</span><br><span class="hljs-built_in">benchmark</span>([&amp;s] () &#123;<br>    <span class="hljs-keyword">auto</span> it = <span class="hljs-built_in">find</span>(s.<span class="hljs-built_in">begin</span>(), s.<span class="hljs-built_in">end</span>(), <span class="hljs-built_in">rand</span>() % s.<span class="hljs-built_in">size</span>());<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p><strong>成员函数使用了与 关联容器 一致的等价算法，而 find 使用的是 相等 算法</strong>。因此，如果使用关联容器的话，你应该尽量使用成员函数形式的find、count、lower_bound等等，而不是同名的算法，因为这些成员函数版本提供了和其它成员函数一致的行为。</p>
+<p>list成员函数的行为和它们的算法兄弟的行为经常不相同。正如条款32所解释的，如果你真的想从容器中清除对象的话，调用remove、remove_if和unique算法后，必须紧接着调用erase函数；但list的remove、remove_if和unique成员函数真的去掉了元素，后面不需要接着调用erase。</p>
+<h2 id="条款45：注意count、find、binary-search、lower-bound、upper-bound和equal-range的区别"><a href="#条款45：注意count、find、binary-search、lower-bound、upper-bound和equal-range的区别" class="headerlink" title="条款45：注意count、find、binary_search、lower_bound、upper_bound和equal_range的区别"></a>条款45：注意count、find、binary_search、lower_bound、upper_bound和equal_range的区别</h2><table>
+<thead>
+<tr>
+<th>你想知道的</th>
+<th>在无序区间</th>
+<th>在有序区间</th>
+<th>在set或map上（成员函数）</th>
+<th>在multiset或multimap上（成员函数）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>期望值是否存在？</td>
+<td>find</td>
+<td>binary_search</td>
+<td>count</td>
+<td>find</td>
+</tr>
+<tr>
+<td>期望值是否存在？如果有，第一个等于这个值的对象在哪里？</td>
+<td>find</td>
+<td>equal_range</td>
+<td>find</td>
+<td>find或lower_bound（参见下面）</td>
+</tr>
+<tr>
+<td>第一个不在期望值之前的对象在哪里？</td>
+<td>find_if</td>
+<td>lower_bound</td>
+<td>lower_bound</td>
+<td>lower_bound</td>
+</tr>
+<tr>
+<td>第一个在期望值之后的对象在哪里？</td>
+<td>find_if</td>
+<td>upper_bound</td>
+<td>upper_bound</td>
+<td>upper_bound</td>
+</tr>
+<tr>
+<td>有多少对象等于期望值？</td>
+<td>count</td>
+<td>equal_range，然后 distance</td>
+<td>count</td>
+<td>count</td>
+</tr>
+<tr>
+<td>等于期望值的所有对象在哪里？</td>
+<td>find（迭代）</td>
+<td>equal_range</td>
+<td>equal_range</td>
+<td>equal_range</td>
+</tr>
+</tbody></table>
+<ul>
+<li>对于无序区间，大部分都是使用 find 或者 find_if</li>
+<li>对于有序区间，可以使用 binary_search、lower_bound、upper_bound、equal_range</li>
+<li>对于关联式容器，也可以用本身的成员函数</li>
+</ul>
+<h2 id="条款46：考虑使用函数对象代替函数作算法的参数"><a href="#条款46：考虑使用函数对象代替函数作算法的参数" class="headerlink" title="条款46：考虑使用函数对象代替函数作算法的参数"></a>条款46：考虑使用函数对象代替函数作算法的参数</h2><p>如果一个函数对象的operator()函数被声明为内联（不管显式地通过inline或者隐式地通过定义在它的类定义中），编译器就可以获得那个函数的函数体，而且大部分编译器喜欢在调用算法的模板实例化时内联那个函数。在上面的例子中，greater<double>::operator()是一个<strong>内联函数</strong>，所以编译器在实例化sort时内联展开它。</p>
+<p>它传了一个doubleGreater的指针，而指针的调用存在开销。</p>
+<p>不过我实际测试来看，没有什么区别：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)  v.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">rand</span>() % (n / <span class="hljs-number">2</span>));<br><br><span class="hljs-comment">// 6985ms</span><br><span class="hljs-built_in">benchmark</span>&lt;<span class="hljs-number">100</span>&gt;([&amp;v] () &#123;<br>    <span class="hljs-built_in">sort</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-built_in">greater</span>&lt;<span class="hljs-type">int</span>&gt;());<br>&#125;);<br><br><span class="hljs-comment">// 6843ms</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)  v[i] = <span class="hljs-built_in">rand</span>() % (n / <span class="hljs-number">2</span>);<br><span class="hljs-built_in">benchmark</span>&lt;<span class="hljs-number">100</span>&gt;([&amp;v] () &#123;<br>    <span class="hljs-built_in">sort</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [] (<span class="hljs-keyword">auto</span>&amp; lhs, <span class="hljs-keyword">auto</span>&amp; rhs) &#123;<br>        <span class="hljs-keyword">return</span> lhs &gt; rhs;<br>    &#125;);<br>&#125;);<br><br><span class="hljs-comment">// 7134ms</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)  v[i] = <span class="hljs-built_in">rand</span>() % (n / <span class="hljs-number">2</span>);<br><span class="hljs-built_in">benchmark</span>&lt;<span class="hljs-number">100</span>&gt;([&amp;v] () &#123;<br>    <span class="hljs-built_in">sort</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), cmp);<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>把函数对象作为算法的参数所带来的不仅是巨大的效率提升。在让你的代码可以编译方面，它们也更稳健。当然，真函数很有用，但是当涉及有效的STL编程时，函数对象经常更有用。</p>
+<h2 id="条款47：避免产生只写代码"><a href="#条款47：避免产生只写代码" class="headerlink" title="条款47：避免产生只写代码"></a>条款47：避免产生只写代码</h2><p><strong>代码的读比写更经常，这是软件工程的真理</strong>。也就是说软件的维护比开发花费多得多的时间。不能读和理解的软件不能被维护，不能维护的软件几乎没有不值得拥有。你用STL越多，你会感到它越来越舒适，而且你会越来越多的使用嵌套函数调用和即时（on the fly）建立函数对象。这没有什么错的，但永远记住你今天写的代码会被某个人——也可能是你——在未来的某一天读到。为那天做准备吧</p>
+<h2 id="条款48：总是-include适当的头文件"><a href="#条款48：总是-include适当的头文件" class="headerlink" title="条款48：总是#include适当的头文件"></a>条款48：总是#include适当的头文件</h2><ul>
+<li>几乎所有的容器都在同名的头文件里，比如，vector在<vector>中声明，list在<list>中声明等。例外的是<set>和<map>。<set>声明了set和multiset，<map>声明了map和multimap。</li>
+<li>除了四个算法外，所有的算法都在<algorithm>中声明。例外的是accumulate（参见条款37）、inner_product、adjacent_difference和partial_sum。这些算法在<numeric>中声明。</li>
+<li>特殊的迭代器，包括istream_iterators和istreambuf_iterators（参见条款29），在<iterator>中声明。</li>
+<li>标准仿函数（比如less<T>）和仿函数适配器（比如not1、bind2nd）在<functional>中声明。</li>
+</ul>
+<h2 id="条款49：学习破解有关STL的编译器诊断信息"><a href="#条款49：学习破解有关STL的编译器诊断信息" class="headerlink" title="条款49：学习破解有关STL的编译器诊断信息"></a>条款49：学习破解有关STL的编译器诊断信息</h2><p>这里有一些应该能帮助你理解有关STL的编译器消息的其它提示：</p>
+<ul>
+<li><p>对于vector和string，迭代器有时是指针，所以如果你用迭代器犯了错误，编译器诊断信息可能会提及涉及指针类型。例如，如果你的源代码涉及vector<double>::iterator，编译器消息有时会提及double<em>指针。</em>（一个值得注意的例外是当你使用来自STLport的STL实现，而且你运行在调试模式。那样的话，vector和string的迭代器干脆不是指针。对STLport和它调试模式的更多信息，转向条款50。）</p>
+</li>
+<li><p><strong>提到back_insert_iterator、front_insert_iterator或insert_iterator的消息经常意味着你错误调用了back_inserter、front_inserter或inserter，一一对应</strong>，（back_inserter返回back_insert_iterator类型的对象，front_inserter返回front_insert_iterator类型的对象，而inserter返回insert_iterator类型的对象。关于使用这些inserter的信息，参考条款30。）如果你没有调用这些函数，你（直接或间接）调用的一些函数做了。</p>
+</li>
+<li><p>类似地，<strong>如果你得到的一条消息提及binder1st或binder2nd，你或许错误地使用了bind1st或bind2nd</strong>。（bind1st返回binder1st类型的对象，而bind2nd返回binder2nd类型的对象。）</p>
+</li>
+<li><p>输出迭代器（例如ostream_iterator、ostreambuf_iterators（参见条款29），和从back_inserter、front_inserter和inserter返回的迭代器）在赋值操作符内部做输出或插入工作，所以如果你错误使用了这些迭代器类型之一，你很可能得到一条消息，抱怨在你从未听说过的一个赋值操作符里的某个东西。为了明白我的意思，试着编译这段代码：</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">vector&lt;string&gt; v; <span class="hljs-comment">// 试图打印一个</span><br><span class="hljs-built_in">copy</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-comment">// string*指针的容器，</span><br>  <span class="hljs-built_in">ostream_iterator</span>&lt;string&gt;(cout, <span class="hljs-string">&quot;\n&quot;</span>)); <span class="hljs-comment">// 被当作string对象 </span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>你得到一条源于STL算法实现内部的错误信息（即，源代码引发的错误在<algorithm>中），也许是<strong>你试图给那算法用的类型出错了</strong>。例如，你可能传了错误种类的迭代器。要看看这样的用法错误是怎样报告的，通过把这段代码喂给你的编译器来启发（并愉快！）自己：</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">list&lt;<span class="hljs-type">int</span>&gt;::iterator i1, i2; <span class="hljs-comment">// 把双向迭代器</span><br><span class="hljs-built_in">sort</span>(i1, i2); <span class="hljs-comment">// 传给一个需要 // 随机访问迭代器的算法 </span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>你使用常见的STL组件比如vector、string或for_each算法，而编译器说不知道你在说什么，你也许没有#include一个需要的头文件。正如条款48的解释，这问题会降临在长期以来都可以顺利编译而刚移植到新平台的代码</p>
+</li>
+</ul>
+<p>有经验的STL程序员发展出一项类似的技能。他们可以不假思索地在内部把比如std::basic_string&lt;char, struct std::char_traits<char>, class std::allocator<char> &gt;翻译为string。你也要发展这项技能，但在你能做到之前，记得你总是可以通过用更短的记忆术替换冗长的基于模板的类型名字来把编译器诊断信息降低到可以理解的东西。</p>
+<h2 id="条款50：让你自己熟悉有关STL的网站"><a href="#条款50：让你自己熟悉有关STL的网站" class="headerlink" title="条款50：让你自己熟悉有关STL的网站"></a>条款50：让你自己熟悉有关STL的网站</h2><ul>
+<li>SGI STL网站，<a target="_blank" rel="noopener" href="http://www.sgi.com/tech/stl/%E3%80%82">http://www.sgi.com/tech/stl/。</a></li>
+<li>STLport网站，<a target="_blank" rel="noopener" href="http://www.stlport.org/%E3%80%82">http://www.stlport.org/。</a></li>
+<li>Boost网站，<a target="_blank" rel="noopener" href="http://www.boost.org/%E3%80%82%EF%BC%88%E8%AF%91%E6%B3%A8%EF%BC%9A%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE%E4%B8%8D%E4%BA%86%EF%BC%8C%E5%8F%AF%E4%BB%A5%E8%AF%95%E8%AF%95http://boost.sourceforge.net/%EF%BC%89">http://www.boost.org/</a>。如果无法访问，尝试：<a target="_blank" rel="noopener" href="https://www.boost.org/">Boost C++ Libraries</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Effective-STL/" class="category-chain-item">Effective STL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/STL/" class="print-no-link">#STL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Effective STL - 06 - Programming by STL</div>
+      <div>http://hebangwen.github.io/2024/03/17/Programming-by-STL/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>何榜文</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/17/Functor/" title="Effective STL - 05 - Functor">
+                        <span class="hidden-mobile">Effective STL - 05 - Functor</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
