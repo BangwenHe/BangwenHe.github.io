@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>opencl-alloc-error</title>
+    <link href="/2024/03/27/opencl-alloc-error/"/>
+    <url>/2024/03/27/opencl-alloc-error/</url>
+    
+    <content type="html"><![CDATA[<h1 id="OpenCL-Image-申请失败"><a href="#OpenCL-Image-申请失败" class="headerlink" title="OpenCL Image 申请失败"></a>OpenCL Image 申请失败</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在使用 MNN 部署 ViT 的过程中，出现了这个报错：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">Alloc Image 3 x 49152 error, code:-40<br></code></pre></td></tr></table></figure><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>这个问题是因为这个图像的尺寸超过了本设备 OpenCL 支持的最大尺寸，Adreno 630 的最大尺寸是 16384x16384，所以这个图像的尺寸 3x49152 超过了这个限制。这个尺寸出现的地方在 ViT 生成 QKV 的时候，这个尺寸是 768x2304，使用 RGBA 四通道 Image 时，reshape 之后的尺寸就是 3x49152。解决方案：</p><ol><li>修改 MNN 的代码，将这个尺寸调整到小于 16384x16384。但是需要修改后续的计算代码</li><li>在导出模型时，不要将三个矩阵合并成一个矩阵进行计算，而是分开计算，这样就不会出现这个问题</li><li>Buffer 不会出错，可以使用 Buffer 代替 Image 进行计算，但是 MNN 没有自动 fallback 的功能，需要手动修改代码</li></ol>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>opencl</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Effective STL - 06 - Programming by STL</title>
     <link href="/2024/03/17/Programming-by-STL/"/>
     <url>/2024/03/17/Programming-by-STL/</url>
