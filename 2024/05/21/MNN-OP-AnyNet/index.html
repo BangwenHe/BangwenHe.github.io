@@ -16,28 +16,28 @@
   <meta name="author" content="何榜文">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Cosplay 视频转图片1. 介绍有很多时候 Cosplay 视频里的 Cosplayer 只有几个相同的画面，但是他们还是发出了一个短视频用于展示。我们想要把相同的画面剔除，对每个不同的画面保留一张图片。从信息论的角度来看，大部分 Cosplay 短视频的信息熵很低，只有几张图片是有意义的。这个项目就是为了尝试提取这些有意义的图片。   调研之后发现这是一个类似视频总结（Video Summa">
+    <meta name="description" content="1. 介绍本文主要介绍如何在 MNN 中添加自定义算子，以 AnyNet 为例。AnyNet 添加了一个自定义算子，虽然可以用 pytorch 表达，并且导出 ONNX 和 MNN，但是节点过多，可视化工具无法很好的展示，因此本文尝试将 AnyNet 中的自定义算子添加到 MNN 中。 自定义 MNN 算子需要先将 pytorch 计算逻辑导出成 ONNX 节点，并且由 MNN 来解释。这需要首先">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Cosplay 视频转图片">
-<meta property="og:url" content="http://hebangwen.github.io/2024/05/17/cosplay-video-to-picture-md/index.html">
+<meta property="og:title" content="MNN 自定义算子，以 AnyNet 为例">
+<meta property="og:url" content="http://hebangwen.github.io/2024/05/21/MNN-OP-AnyNet/index.html">
 <meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
-<meta property="og:description" content="Cosplay 视频转图片1. 介绍有很多时候 Cosplay 视频里的 Cosplayer 只有几个相同的画面，但是他们还是发出了一个短视频用于展示。我们想要把相同的画面剔除，对每个不同的画面保留一张图片。从信息论的角度来看，大部分 Cosplay 短视频的信息熵很低，只有几张图片是有意义的。这个项目就是为了尝试提取这些有意义的图片。   调研之后发现这是一个类似视频总结（Video Summa">
+<meta property="og:description" content="1. 介绍本文主要介绍如何在 MNN 中添加自定义算子，以 AnyNet 为例。AnyNet 添加了一个自定义算子，虽然可以用 pytorch 表达，并且导出 ONNX 和 MNN，但是节点过多，可视化工具无法很好的展示，因此本文尝试将 AnyNet 中的自定义算子添加到 MNN 中。 自定义 MNN 算子需要先将 pytorch 计算逻辑导出成 ONNX 节点，并且由 MNN 来解释。这需要首先">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s2.loli.net/2024/05/17/NLCZyuIFAKmzBM1.png">
-<meta property="article:published_time" content="2024-05-17T03:20:22.000Z">
-<meta property="article:modified_time" content="2024-05-17T04:30:24.519Z">
+<meta property="og:image" content="https://github.com/hebangwen/AnyNet/raw/master/figures/network.png">
+<meta property="og:image" content="https://s2.loli.net/2024/05/21/YzT6sRtcr9S5uGV.png">
+<meta property="article:published_time" content="2024-05-21T02:06:13.000Z">
+<meta property="article:modified_time" content="2024-05-21T13:01:59.700Z">
 <meta property="article:author" content="何榜文">
-<meta property="article:tag" content="cosplay">
-<meta property="article:tag" content="video summarization">
-<meta property="article:tag" content="clip">
+<meta property="article:tag" content="MNN">
+<meta property="article:tag" content="AnyNet">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s2.loli.net/2024/05/17/NLCZyuIFAKmzBM1.png">
+<meta name="twitter:image" content="https://github.com/hebangwen/AnyNet/raw/master/figures/network.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Cosplay 视频转图片 - Yet Another 何榜文&#39;s Blog</title>
+  <title>MNN 自定义算子，以 AnyNet 为例 - Yet Another 何榜文&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -239,7 +239,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Cosplay 视频转图片"></span>
+            <span id="subtitle" data-typed-text="MNN 自定义算子，以 AnyNet 为例"></span>
           
         </div>
 
@@ -250,8 +250,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-05-17 11:20" pubdate>
-          2024年5月17日 上午
+        <time datetime="2024-05-21 10:06" pubdate>
+          2024年5月21日 上午
         </time>
       </span>
     
@@ -262,7 +262,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          982 字
+          624 字
         
       </span>
     
@@ -273,7 +273,7 @@
         
         
         
-          9 分钟
+          6 分钟
         
       </span>
     
@@ -310,35 +310,26 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Cosplay 视频转图片</h1>
+            <h1 id="seo-header">MNN 自定义算子，以 AnyNet 为例</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Cosplay-视频转图片"><a href="#Cosplay-视频转图片" class="headerlink" title="Cosplay 视频转图片"></a>Cosplay 视频转图片</h1><h2 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1. 介绍"></a>1. 介绍</h2><p>有很多时候 Cosplay 视频里的 Cosplayer 只有几个相同的画面，但是他们还是发出了一个短视频用于展示。我们想要把相同的画面剔除，对每个不同的画面保留一张图片。从信息论的角度来看，大部分 Cosplay 短视频的信息熵很低，只有几张图片是有意义的。这个项目就是为了尝试提取这些有意义的图片。</p>
-<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=1304043187&bvid=BV1VM4m1Z7ug&cid=1535182959&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+                <h2 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1. 介绍"></a>1. 介绍</h2><p>本文主要介绍如何在 MNN 中添加自定义算子，以 AnyNet 为例。AnyNet 添加了一个自定义算子，虽然可以用 pytorch 表达，并且导出 ONNX 和 MNN，但是节点过多，可视化工具无法很好的展示，因此本文尝试将 AnyNet 中的自定义算子添加到 MNN 中。</p>
+<p>自定义 MNN 算子需要先将 pytorch 计算逻辑导出成 ONNX 节点，并且由 MNN 来解释。这需要首先将 pytorch 计算包装成 <code>torch.autograd.Function</code>，然后通过 <code>torch.onnx.export</code> 导出 ONNX 节点。然后通过 MNN 的 <code>MNN::OpConverter</code> 来解释 ONNX 节点。</p>
+<h2 id="2-AnyNet"><a href="#2-AnyNet" class="headerlink" title="2. AnyNet"></a>2. AnyNet</h2><p><img src="https://github.com/hebangwen/AnyNet/raw/master/figures/network.png" srcset="/img/loading.gif" lazyload alt="AnyNet"></p>
+<p>AnyNet 自定义了一个 SPNet 算子，并且使用 CUDA 实现了这个算子。SPN的结构，分为两种，分别是单路连接和三路连接：</p>
+<p><img src="https://s2.loli.net/2024/05/21/YzT6sRtcr9S5uGV.png" srcset="/img/loading.gif" lazyload alt="spnet.png"></p>
+<p>实际上就是通过一个权重矩阵，上一个点迭代地给下一个点权重，对于单路连接和三路连接，有：</p>
+<p>$$<br>\begin{align}<br>h_{k,t} &amp;&#x3D; (1 - p_{k,t}) \cdot x_{k,t} + p_{k,t} \cdot h_{k,t-1} \<br>h_{k,t} &amp;&#x3D; (1 - \sum_{k \in \mathbb{N}} p_{k,t}) x_{k,t} + \sum_{k \in \mathbb{N}}p_{k,t} h_{k,t-1}<br>\end{align}<br>$$</p>
+<p>$p$是权重，$x$是当前点的值，$h$是传播后的值，$k$是行索引，$t$是列索引。AnyNet使用的是三路连接中的left to right，重复传播（recurrent propagation）要求下一个点的值依赖于上三个点（也就是左边三个点）的值。</p>
+<p>下面是 CUDA 实现和 pytorch 实现。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">forward_one_col_left_right</span><span class="hljs-params">( <span class="hljs-type">int</span> count, <span class="hljs-type">int</span> T, <span class="hljs-type">int</span> num,<span class="hljs-type">int</span> channels, <span class="hljs-type">int</span> height,  <span class="hljs-type">int</span> width, <span class="hljs-type">float</span>* X,  <span class="hljs-type">float</span>* G1,  <span class="hljs-type">float</span>* G2, <span class="hljs-type">float</span>* G3, <span class="hljs-type">float</span>* H, <span class="hljs-type">int</span> horizontal, <span class="hljs-type">int</span> reverse)</span> </span>&#123;<br>  <span class="hljs-built_in">CUDA_1D_KERNEL_LOOP</span>(index, count) &#123;<br><br>  	<span class="hljs-type">int</span> hc_count = height * channels;<br><br>  	<span class="hljs-type">int</span> n,c,h,w;<br>  	<span class="hljs-type">int</span> temp=index;<br>  	w = T;<br>  	n = temp / hc_count;<br>  	temp = temp % hc_count;<br>  	c = temp / height;<br>  	temp = temp % height;<br>  	h = temp;<br><br><br>  	<span class="hljs-type">float</span> x_data = <span class="hljs-built_in">get_data_sf</span>(X,num,channels,height,width,n,c,h,w);<br><br>  	<span class="hljs-type">float</span> g_data_1 = <span class="hljs-built_in">get_gate_sf</span>(G1,num,channels,height,width,n,c,h,w,h<span class="hljs-number">-1</span>,w<span class="hljs-number">-1</span>,horizontal,reverse);<br>  	<span class="hljs-type">float</span> h_minus1_data_1 = <span class="hljs-built_in">get_data_sf</span>(H,num,channels,height,width,n,c,h<span class="hljs-number">-1</span>,w<span class="hljs-number">-1</span>);<br>  	<span class="hljs-type">float</span> h1_minus1 = g_data_1 * h_minus1_data_1;<br><br>  	<span class="hljs-type">float</span> g_data_2 = <span class="hljs-built_in">get_gate_sf</span>(G2,num,channels,height,width,n,c,h,w,h,w<span class="hljs-number">-1</span>,horizontal,reverse);<br>  	<span class="hljs-type">float</span> h_minus1_data_2 = <span class="hljs-built_in">get_data_sf</span>(H,num,channels,height,width,n,c,h,w<span class="hljs-number">-1</span>);<br>  	<span class="hljs-type">float</span> h2_minus1 = g_data_2 * h_minus1_data_2;<br><br>  	<span class="hljs-type">float</span> g_data_3 = <span class="hljs-built_in">get_gate_sf</span>(G3,num,channels,height,width,n,c,h,w,h+<span class="hljs-number">1</span>,w<span class="hljs-number">-1</span>,horizontal,reverse);<br>  	<span class="hljs-type">float</span> h_minus1_data_3 = <span class="hljs-built_in">get_data_sf</span>(H,num,channels,height,width,n,c,h+<span class="hljs-number">1</span>,w<span class="hljs-number">-1</span>);<br>  	<span class="hljs-type">float</span> h3_minus1 = g_data_3 * h_minus1_data_3;<br><br>  	<span class="hljs-type">float</span> h_hype = h1_minus1 + h2_minus1 + h3_minus1;<br>  	<span class="hljs-type">float</span> x_hype = (<span class="hljs-number">1</span> - g_data_1 - g_data_2 - g_data_3) * x_data;<br><br>  	<span class="hljs-type">float</span> h_data = x_hype + h_hype;<br><br>  	<span class="hljs-built_in">set_data_sf</span>(H,num,channels,height,width,n,c,h,w,h_data);<br><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>调研之后发现这是一个类似视频总结（Video Summarization）的问题。视频总结是一个很大的研究领域，有很多工作。这个项目只是一个简单的尝试，不会涉及到很多复杂的技术。</p>
-<h2 id="2-方法"><a href="#2-方法" class="headerlink" title="2. 方法"></a>2. 方法</h2><p>受到 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.04962v1">2401.04962v1</a> 的启发，这个问题主要针对的是视频中的重复帧。我们可以通过计算每一帧的特征向量，然后通过聚类算法来找到相似的帧。这个项目使用了 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/K-means_clustering">K-means</a> 算法来聚类。</p>
-<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2401.04962v1">2401.04962v1</a> 的架构图如下：</p>
-<p><img src="https://s2.loli.net/2024/05/17/NLCZyuIFAKmzBM1.png" srcset="/img/loading.gif" lazyload alt="LMSKE framework"></p>
-<p>这个工作将视频总结（Video summarization）工作分为了三个步骤：</p>
-<ol>
-<li>使用 TransNetV2 对视频进行分割，得到单个短视频（shot），使用 CLIP 对每个短视频每一帧进行特征提取，得到每一个视频的特征描述 $F_i &#x3D; (f_{s_i}, f_{e_i})$ ，其中 $s_i$ 和 $e_i$ 表示第 $i$ 个视频的开始时间点和结束时间点。</li>
-<li>自适应聚类算法（adaptive clustering）。通过自监督的聚类算法得到短视频关键帧，该工作使用的是 KMeans。为了得到最佳的聚类个数，作者提出了自适应聚类算法。（<strong>没有看完</strong>）</li>
-<li>重复帧消除（redundancy elimination）。消除无信息帧（如纯色图片）或者相似帧。使用 SSIM 矩阵取出相似帧。</li>
-</ol>
-<p>为什么用 CLIP？ViT 的输出是一个 $197 \times 768$ 矩阵，CLIP 输出一个 $1 \times 512$ 矩阵，更紧凑，下游任务更友好。其它视频总结的工作也使用 CLIP 作为骨干网络提取特征。</p>
-<p>迁移到本文提到的任务中，暂时不需要视频分割，只需要提取特征并聚类得到图像即可。代码如下。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> cv2<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> PIL <span class="hljs-keyword">import</span> Image<br><span class="hljs-keyword">from</span> sklearn.cluster <span class="hljs-keyword">import</span> KMeans<br><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> tqdm <span class="hljs-keyword">import</span> tqdm<br><span class="hljs-keyword">import</span> transformers<br><span class="hljs-keyword">from</span> transformers <span class="hljs-keyword">import</span> AutoProcessor, CLIPVisionModelWithProjection<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">extract_clip_feature_for_video</span>(<span class="hljs-params">video_path</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    使用 transformers 中的 CLIP 视觉模型提取视频中每一帧的特征</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    <span class="hljs-comment"># 1. 加载模型</span><br>    model = CLIPVisionModelWithProjection.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>)<br>    processor = AutoProcessor.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>)<br><br>    <span class="hljs-comment"># 2. 读取视频</span><br>    cap = cv2.VideoCapture(video_path)<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> cap.isOpened():<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Error: Could not open video.&quot;</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br><br>    <span class="hljs-comment"># 3. 提取特征</span><br>    i = <span class="hljs-number">0</span><br>    features = []<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        start = cv2.getTickCount()<br>        ret, frame = cap.read()<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> ret:<br>            <span class="hljs-keyword">break</span><br><br>        <span class="hljs-comment"># 3.1 转换为 RGB</span><br>        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)<br><br>        <span class="hljs-comment"># 3.2 预处理</span><br>        image = Image.fromarray(frame)<br>        inputs = processor(images=image, return_tensors=<span class="hljs-string">&quot;pt&quot;</span>)<br><br>        <span class="hljs-comment"># 3.3 计算特征</span><br>        <span class="hljs-keyword">with</span> torch.no_grad():<br>            outputs = model(**inputs)<br>            image_embeds = outputs.image_embeds<br>            features.append(image_embeds.cpu().numpy().squeeze())<br>            <span class="hljs-comment"># print(image_embeds.shape)</span><br><br>        end = cv2.getTickCount()<br>        elapsed = (end - start) / cv2.getTickFrequency()<br>        i += <span class="hljs-number">1</span><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Processed <span class="hljs-subst">&#123;i&#125;</span>/<span class="hljs-subst">&#123;frame_count&#125;</span> frames. cost <span class="hljs-subst">&#123;elapsed&#125;</span>&quot;</span>, end=<span class="hljs-string">&quot;\r&quot;</span>)<br>        <br>    <span class="hljs-comment"># 4. 释放资源</span><br>    cap.release()<br><br>    <span class="hljs-keyword">return</span> features<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">feature_clustering</span>(<span class="hljs-params">features</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    对特征进行聚类</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    <span class="hljs-comment"># 1. 转换为 numpy 数组</span><br>    features = np.array(features)<br><br>    <span class="hljs-comment"># 2. KMeans 聚类</span><br>    kmeans = KMeans(n_clusters=<span class="hljs-number">10</span>, random_state=<span class="hljs-number">0</span>).fit(features)<br><br>    <span class="hljs-comment"># 3. 找出最接近聚类中心的特征，返回索引</span><br>    labels = kmeans.labels_<br>    centers = kmeans.cluster_centers_<br>    indices = []<br>    <span class="hljs-keyword">for</span> center <span class="hljs-keyword">in</span> centers:<br>        index = np.argmin(np.linalg.norm(features - center, axis=<span class="hljs-number">1</span>))<br>        indices.append(index)<br><br>    <span class="hljs-keyword">return</span> indices<br>    <br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">save_frames</span>(<span class="hljs-params">video_path, indices</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    保存视频中特定帧的图片</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    <span class="hljs-comment"># 1. 读取视频</span><br>    cap = cv2.VideoCapture(video_path)<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> cap.isOpened():<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Error: Could not open video.&quot;</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br><br>    <span class="hljs-comment"># 2. 保存图片</span><br>    count = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        ret, frame = cap.read()<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> ret:<br>            <span class="hljs-keyword">break</span><br><br>        <span class="hljs-keyword">if</span> count <span class="hljs-keyword">in</span> indices:<br>            cv2.imwrite(<span class="hljs-string">f&quot;frame_<span class="hljs-subst">&#123;count&#125;</span>.jpg&quot;</span>, frame)<br><br>        count += <span class="hljs-number">1</span><br><br>    <span class="hljs-comment"># 3. 释放资源</span><br>    cap.release()<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    video_path = <span class="hljs-string">&quot;“父 亲 大 人” [BV1VM4m1Z7ug].mp4&quot;</span><br>    features = extract_clip_feature_for_video(video_path)<br>    <span class="hljs-built_in">print</span>(features[<span class="hljs-number">0</span>].shape)<br><br>    indices = feature_clustering(features)<br>    <span class="hljs-built_in">print</span>(indices)<br><br>    save_frames(video_path, indices)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Done.&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">GateRecurrent</span>(nn.Module):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">super</span>().__init__()<br>    <br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, X, G1, G2, G3</span>):<br>        width = X.size(<span class="hljs-number">3</span>)<br>        H = torch.zeros_like(X)<br>        <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(width):<br>            g1 = G1[..., t]<br>            g2 = G2[..., t]<br>            g3 = G3[..., t]<br><br>            h1 = F.pad(H[:, :, :-<span class="hljs-number">1</span>, t-<span class="hljs-number">1</span>], (<span class="hljs-number">1</span>, <span class="hljs-number">0</span>))<br>            h2 = H[:, :, :, t-<span class="hljs-number">1</span>]<br>            h3 = F.pad(H[:, :, <span class="hljs-number">1</span>:, t-<span class="hljs-number">1</span>], (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>))<br><br>            g = g1 + g2 + g3<br>            x = X[..., t]<br>            H[..., t] = (<span class="hljs-number">1</span> - g) * x + (h1 * g1 + h2 * g2 + h3 * g3)<br><br>        <span class="hljs-keyword">return</span> H<br></code></pre></td></tr></table></figure>
 
 
-<p>KMeans 聚类中心的超参数设为了 10，这个值可以根据实际情况调整。</p>
-<h2 id="3-TODO"><a href="#3-TODO" class="headerlink" title="3. TODO"></a>3. TODO</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://github.com/showlab/UniVTG">UniVTG</a> 是一个视频总结的工作，可以参考。有视频总结、时间段查找、高光片段提取等功能。</li>
-<li>低质量帧的检测和剔除。</li>
-<li>自适应聚类大小的确定。</li>
-</ol>
+<h2 id="3-自定义-ONNX-算子"><a href="#3-自定义-ONNX-算子" class="headerlink" title="3. 自定义 ONNX 算子"></a>3. 自定义 ONNX 算子</h2><p>待续</p>
 
                 
               </div>
@@ -351,11 +342,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/cosplay/" class="print-no-link">#cosplay</a>
+        <a href="/tags/MNN/" class="print-no-link">#MNN</a>
       
-        <a href="/tags/video-summarization/" class="print-no-link">#video summarization</a>
-      
-        <a href="/tags/clip/" class="print-no-link">#clip</a>
+        <a href="/tags/AnyNet/" class="print-no-link">#AnyNet</a>
       
     </div>
   
@@ -367,8 +356,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Cosplay 视频转图片</div>
-      <div>http://hebangwen.github.io/2024/05/17/cosplay-video-to-picture-md/</div>
+      <div>MNN 自定义算子，以 AnyNet 为例</div>
+      <div>http://hebangwen.github.io/2024/05/21/MNN-OP-AnyNet/</div>
     </div>
     <div class="license-meta">
       
@@ -380,7 +369,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年5月17日</div>
+          <div>2024年5月21日</div>
         </div>
       
       
@@ -412,18 +401,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/05/21/MNN-OP-AnyNet/" title="MNN 自定义算子，以 AnyNet 为例">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">MNN 自定义算子，以 AnyNet 为例</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/03/28/powershell-autocomplete/" title="powershell-autocomplete">
-                        <span class="hidden-mobile">powershell-autocomplete</span>
+                      <a href="/2024/05/17/cosplay-video-to-picture-md/" title="Cosplay 视频转图片">
+                        <span class="hidden-mobile">Cosplay 视频转图片</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
