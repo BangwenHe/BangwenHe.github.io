@@ -73,7 +73,7 @@
 
 
   
-<meta name="generator" content="Hexo 7.1.1"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -262,15 +262,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/03/14/llama2/" target="_self">
-          llama2
+        <a href="/2024/03/17/Iterator/" target="_self">
+          Effective STL - 03 - Iterator
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/14/llama2/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/17/Iterator/" target="_self">
         <div>
-          LLaMa2Transformer IntroductionArchitecturetransformer 最主要的结构就是这张图：   在纯 Encoder 或者纯 Decoder 的架构中，会变成只有左边的 transformer block 的结构，但是区别在于 Multi-Head Attention 是否存在 mask。Encoder-only 架构为了获取每一个 token 的完整上下
+          Iterator条款26：尽量用iterator代替const_iterator，reverse_iterator和const_reverse_iterator  graph  A[iterator] --&gt; B[const_iterator] A[iterator] --&gt; C[reverse_iterator] C[reverse_iterator] --&gt; D[const_
         </div>
       </a>
 
@@ -278,19 +278,176 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-03-14 09:16" pubdate>
-              2024-03-14
+            <time datetime="2024-03-17 20:32" pubdate>
+              2024-03-17
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Effective-STL/" class="category-chain-item">Effective STL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Transformer/">#Transformer</a>
+              <a href="/tags/C/">#C++</a>
             
-              <a href="/tags/LLaMa2/">#LLaMa2</a>
+              <a href="/tags/STL/">#STL</a>
+            
+              <a href="/tags/Iterator/">#Iterator</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/03/17/Vector-and-String/" target="_self">
+          Effective STL - 02 - Vector and String
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/17/Vector-and-String/" target="_self">
+        <div>
+          Vector and String条款13：尽量使用vector和string来代替动态分配的数组无论何时，你发现你自己准备动态分配一个数组（也就是，企图写“new T[…]”），你应该首先考虑使用一个vector或一个string。 坦白地说，我想到了一个（也是唯一一个）用vector或string代替动态分配数组会出现的问题，而且它只关系到string。很多string实现在后台使用了引用计数
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-03-17 20:31" pubdate>
+              2024-03-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Effective-STL/" class="category-chain-item">Effective STL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/STL/">#STL</a>
+            
+              <a href="/tags/Vector/">#Vector</a>
+            
+              <a href="/tags/String/">#String</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/03/17/Containers/" target="_self">
+          Effective STL - 01 - Containers
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/17/Containers/" target="_self">
+        <div>
+          Containers条款 1 仔细选择你的容器 vector是一种可以默认使用的序列类型，当很频繁地对序列中部进行插入和删除时应该用list，当大部分插入和删除发生在序列的头或尾时可以选择deque这种数据结构   连续内存容器（也叫做基于数组的容器）在一个或多个（动态分配）的内存块中保存它们的元素。如果一个新元素被查入或者已存元素被删除，其他在同一个内存块的元素就必须向上或者向下移动来为新元素提
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-03-17 20:01" pubdate>
+              2024-03-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Effective-STL/" class="category-chain-item">Effective STL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/STL/">#STL</a>
+            
+              <a href="/tags/Effective-STL/">#Effective STL</a>
+            
+              <a href="/tags/Containers/">#Containers</a>
             
           </div>
         
@@ -420,39 +577,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2024-03-11 21:12" pubdate>
-              2024-03-11
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/03/11/hello-world/" target="_self">
-          Hello World
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/11/hello-world/" target="_self">
-        <div>
-          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-03-11 21:09" pubdate>
               2024-03-11
             </time>
           </div>

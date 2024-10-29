@@ -16,23 +16,25 @@
   <meta name="author" content="何榜文">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+    <meta name="description" content="llama.cpp Q 量化方式总结TheBloke 里有许多不同量化方式的模型，如下： 123456789CapybaraHermes-2.5-Mistral-7B-GGUF  | - capybarahemers-2.5-mistral-7b.Q2_K.gguf  | - capybarahemers-2.5-mistral-7b.Q3_K_L.gguf  | - capybarahemers">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://hebangwen.github.io/2024/03/11/hello-world/index.html">
+<meta property="og:title" content="llama.cpp Q 量化方式总结">
+<meta property="og:url" content="http://hebangwen.github.io/2024/10/29/llamacpp-q-quants/index.html">
 <meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="llama.cpp Q 量化方式总结TheBloke 里有许多不同量化方式的模型，如下： 123456789CapybaraHermes-2.5-Mistral-7B-GGUF  | - capybarahemers-2.5-mistral-7b.Q2_K.gguf  | - capybarahemers-2.5-mistral-7b.Q3_K_L.gguf  | - capybarahemers">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-03-11T13:09:00.902Z">
-<meta property="article:modified_time" content="2024-03-11T13:09:00.902Z">
+<meta property="article:published_time" content="2024-10-29T14:53:37.000Z">
+<meta property="article:modified_time" content="2024-10-29T15:35:56.962Z">
 <meta property="article:author" content="何榜文">
+<meta property="article:tag" content="llama.cpp">
+<meta property="article:tag" content="LLM">
 <meta name="twitter:card" content="summary_large_image">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Hello World - Yet Another 何榜文&#39;s Blog</title>
+  <title>llama.cpp Q 量化方式总结 - Yet Another 何榜文&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -83,7 +85,7 @@
 
 
   
-<meta name="generator" content="Hexo 7.1.1"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -234,7 +236,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Hello World"></span>
+            <span id="subtitle" data-typed-text="llama.cpp Q 量化方式总结"></span>
           
         </div>
 
@@ -245,8 +247,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-03-11 21:09" pubdate>
-          2024年3月11日 晚上
+        <time datetime="2024-10-29 22:53" pubdate>
+          2024年10月29日 晚上
         </time>
       </span>
     
@@ -257,7 +259,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          18 字
+          625 字
         
       </span>
     
@@ -268,7 +270,7 @@
         
         
         
-          1 分钟
+          6 分钟
         
       </span>
     
@@ -305,24 +307,38 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Hello World</h1>
+            <h1 id="seo-header">llama.cpp Q 量化方式总结</h1>
             
             
               <div class="markdown-body">
                 
-                <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure>
+                <h1 id="llama-cpp-Q-量化方式总结"><a href="#llama-cpp-Q-量化方式总结" class="headerlink" title="llama.cpp Q 量化方式总结"></a>llama.cpp Q 量化方式总结</h1><p>TheBloke 里有许多不同量化方式的模型，如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs txt">CapybaraHermes-2.5-Mistral-7B-GGUF<br>  | - capybarahemers-2.5-mistral-7b.Q2_K.gguf<br>  | - capybarahemers-2.5-mistral-7b.Q3_K_L.gguf<br>  | - capybarahemers-2.5-mistral-7b.Q3_K_M.gguf<br>  | - capybarahemers-2.5-mistral-7b.Q3_K_S.gguf<br>  | - capybarahemers-2.5-mistral-7b.Q4_0.gguf<br>  | - capybarahemers-2.5-mistral-7b.Q4_K_M.gguf<br>  | - capybarahemers-2.5-mistral-7b.Q4_K_S.gguf<br>  | ...<br></code></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure>
+<p>它们都属于 llama.cpp 中 Q 量化定义的范围。llama.cpp 里的 Q 量化有两个格式：<code>QX_Y</code> 和 <code>QX_K</code>，第一种是对称量化和非对称量化，第二种是 K 量化 (k quants)。</p>
+<h2 id="QX-Y-量化方式"><a href="#QX-Y-量化方式" class="headerlink" title="QX_Y 量化方式"></a><code>QX_Y</code> 量化方式</h2><h3 id="Q4-0-结构体"><a href="#Q4-0-结构体" class="headerlink" title="Q4_0 结构体"></a><code>Q4_0</code> 结构体</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> Q4_0 32</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> &#123;<br>  ggml_half d;            <span class="hljs-comment">// delta</span><br>  <span class="hljs-type">uint8_t</span> qs[Q4_0 / <span class="hljs-number">2</span>];   <span class="hljs-comment">// nibbles / quants</span><br>&#125; block_q4_0;<br></code></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure>
+<p>可以看到每个 block 共有 32 个权重，每个权重占用 4bit，每两个权重共享一个 <code>uint8_t</code>。同时，整个 block 共享一个相同的缩放系数。</p>
+<h3 id="含义"><a href="#含义" class="headerlink" title="含义"></a>含义</h3><p><code>QX_Y</code> 量化方式里 <code>X</code> 和 <code>Y</code> 均为数字，常用的有 <code>Q4_0</code> 和 <code>Q4_1</code>。其含义如下：</p>
+<ul>
+<li><code>X</code>: 量化 bit 数，如 <code>3</code>、<code>4</code>、<code>5</code> 等。</li>
+<li><code>Y</code>: 反量化方式<ul>
+<li><code>Y</code> 为奇数时，量化为非对称量化，反量化方式为 $x&#x3D;d \times q + m$ ，其中 $d$ 为 scale、 $q$ 为 quant-value、 $m$ 为 block-minimal；<code>Y</code> 为偶数时，量化为对称量化，反量化方式为 $x &#x3D; d \times q$ 。</li>
+<li><code>Y/2</code> 代表了 block size 的大小，当 <code>Y</code> 为 0&#x2F;1 时，block size 为 32；当 <code>Y</code> 为 2&#x2F;3 时，block size 为 16。</li>
+</ul>
+</li>
+</ul>
+<h2 id="QX-K-量化方式"><a href="#QX-K-量化方式" class="headerlink" title="QX_K 量化方式"></a><code>QX_K</code> 量化方式</h2><p>随着 block size 增大，共享缩放系数的权重数量减小，可以预见模型的性能（以 perplexity 衡量）可以增加。但是 block size 的增加会导致缩放系数的数量增加，导致 block 整体的存储开销增大。llama.cpp 中以 bits per weight (bpw) 衡量，此时不如使用更高 bit 数的量化方式。</p>
+<p>K 量化的原理是：我们可以将多个 scale 放在同一个数组中，然后对这个 scale 数组进行量化，得到一个 scale 数组的 scale，这样就可以减少 block 的存储开销。因此需要合并多个 <code>Q4_0</code> block 到一起，减小整体的存储开销。</p>
+<h3 id="Q4-K-结构体"><a href="#Q4-K-结构体" class="headerlink" title="Q4_K 结构体"></a><code>Q4_K</code> 结构体</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> K_SCALE_SIZE 12</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> QK_K 256</span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> &#123;<br>  <span class="hljs-keyword">union</span> &#123;<br>    <span class="hljs-keyword">struct</span> &#123;<br>      ggml_half d;        <span class="hljs-comment">// super-block scale for quantized scales</span><br>      ggml_half dmin;     <span class="hljs-comment">// super-block scale for quantized mins</span><br>    &#125; GGML_COMMON_AGGR;<br>    ggml_half2 dm;<br>  &#125;<br><br>  <span class="hljs-type">uint8_t</span> scales[K_SCALE_SIZE];   <span class="hljs-comment">// scales and mins, quantized with 6 bits</span><br>  <span class="hljs-type">uint8_t</span> qs[QK_K / <span class="hljs-number">2</span>];           <span class="hljs-comment">// 4-bit quants</span><br>&#125; block_q4_K;<br></code></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<p><code>block_q4_K</code> 结构体中有 256 个权重，该 super block 拥有 256&#x2F;32&#x3D;8 个 block，每个 block 的 scale 和 min 被量化成了 6bit，并以数组形式保存在 <code>scales</code> 中。</p>
+<p><code>block_q4_0</code> 的 bpw: $(16 + 32 \times  4) &#x2F; 32 &#x3D; 4.5$ ；<code>block_q4_K</code> 的 bpw: $(2 \times 16 + 12 \times 8 + 256 \times 4) &#x2F; 256 &#x3D; 4.5$ 。二者的 bpw 相同，但是 <code>block_q4_K</code> 存储了更多 scale 和 min，直观上来说，其困惑度会更低。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/ggerganov/llama.cpp/issues/1684">k-quants 的介绍，以 K 结尾的量化</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ggerganov/llama.cpp/issues/1240">QX_4 量化</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ggerganov/llama.cpp/issues/1256">混合比特量化</a></li>
+</ol>
 
                 
               </div>
@@ -332,6 +348,15 @@
               <div class="post-metas my-3">
   
   
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/llama-cpp/" class="print-no-link">#llama.cpp</a>
+      
+        <a href="/tags/LLM/" class="print-no-link">#LLM</a>
+      
+    </div>
+  
 </div>
 
 
@@ -340,8 +365,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Hello World</div>
-      <div>http://hebangwen.github.io/2024/03/11/hello-world/</div>
+      <div>llama.cpp Q 量化方式总结</div>
+      <div>http://hebangwen.github.io/2024/10/29/llamacpp-q-quants/</div>
     </div>
     <div class="license-meta">
       
@@ -353,7 +378,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年3月11日</div>
+          <div>2024年10月29日</div>
         </div>
       
       
@@ -385,15 +410,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/03/11/MNN_GPU_float16/" title="MNN GPU float16 使用原理">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">MNN GPU float16 使用原理</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2024/10/29/llama2/" title="llama2">
+                        <span class="hidden-mobile">llama2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
@@ -447,6 +472,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -664,6 +695,49 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 
