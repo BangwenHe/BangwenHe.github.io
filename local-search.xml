@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>将 ViT 的第一个卷积层转为 MatMul，要求步长和卷积核相等</title>
+    <link href="/2024/11/20/convert-first-conv-in-vit/"/>
+    <url>/2024/11/20/convert-first-conv-in-vit/</url>
+    
+    <content type="html"><![CDATA[<h2 id="ViT-卷积层"><a href="#ViT-卷积层" class="headerlink" title="ViT 卷积层"></a>ViT 卷积层</h2><p>为了将输入的图片转为 patch，然后送入到 Transformer 中，ViT 第一个卷积的步长和卷积核大小是相等的，都是 16。如下图所示，</p><p><img src="https://s2.loli.net/2024/11/21/w3ij7TkJ9U5s6rI.png" alt="vit"></p><p>某些框架可能不支持这么大的 Conv 步长，导致无法转换相应模型。</p><h2 id="MatMul"><a href="#MatMul" class="headerlink" title="MatMul"></a>MatMul</h2><p>卷积可以使用 <code>im2col</code> 加 <code>matmul</code> 来实现，但是由于 <code>im2col</code> 可能效率不高，所以一般不使用这个方式。</p><p>不过我们注意到 ViT 第一个卷积层里的步长和卷积核大小是相等的，所以我们可以用 reshape + transpose 来实现 im2col。代码如下：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">conv2d_to_matmul</span>(<span class="hljs-params">inputs, kernel, stride, padding, bias</span>):<br>    <span class="hljs-comment"># 保证 stride 和 kernel 的 size 相等</span><br>    <span class="hljs-keyword">assert</span> stride == kernel.shape[<span class="hljs-number">2</span>]<br>    <span class="hljs-keyword">assert</span> stride == kernel.shape[<span class="hljs-number">3</span>]<br>    <span class="hljs-keyword">assert</span> padding == <span class="hljs-number">0</span><br><br>    output_h = (inputs.shape[<span class="hljs-number">2</span>] - kernel.shape[<span class="hljs-number">2</span>]) // stride + <span class="hljs-number">1</span><br>    output_w = (inputs.shape[<span class="hljs-number">3</span>] - kernel.shape[<span class="hljs-number">3</span>]) // stride + <span class="hljs-number">1</span><br><br>    reshaped_image = inputs.reshape(<br>        inputs.shape[<span class="hljs-number">0</span>], inputs.shape[<span class="hljs-number">1</span>], output_h, stride, output_w, stride<br>    )<br>    input_vector = reshaped_image.permute(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>).reshape(<br>        inputs.shape[<span class="hljs-number">0</span>] * output_h * output_w, -<span class="hljs-number">1</span><br>    )<br>    kernel_vector = kernel.reshape(kernel.shape[<span class="hljs-number">0</span>], -<span class="hljs-number">1</span>).permtue(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>)<br><br>    output = input_vector @ kernel_vector + bias<br>    output = (<br>        output.reshape(inputs.shape[<span class="hljs-number">0</span>], output_h, output_w, -<span class="hljs-number">1</span>)<br>        .permute(<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br>        .contiguous()<br>    )<br><br>    <span class="hljs-keyword">return</span> output<br><br></code></pre></td></tr></table></figure><p>测试结果如下，对比了使用 <code>conv2d_to_matmul</code> 和 <code>F.conv2d</code> 的结果，误差在 1e-4 左右，还能接受。（实际上不应该有误差，因为数学上是等价的）</p><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">-&gt; % python test.py<br>Difference sum between custom and PyTorch conv2d: 1.746861457824707<br>min: 0.0, max: 0.0001373291015625<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>llama.cpp Q 量化方式总结</title>
     <link href="/2024/10/29/llamacpp-q-quants/"/>
     <url>/2024/10/29/llamacpp-q-quants/</url>
@@ -40,19 +53,6 @@
       <tag>LLaMa2</tag>
       
     </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="/2024/10/29/hello-world/"/>
-    <url>/2024/10/29/hello-world/</url>
-    
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
-    
-    
     
   </entry>
   

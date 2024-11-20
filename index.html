@@ -262,6 +262,39 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2024/11/20/convert-first-conv-in-vit/" target="_self">
+          将 ViT 的第一个卷积层转为 MatMul，要求步长和卷积核相等
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/20/convert-first-conv-in-vit/" target="_self">
+        <div>
+          ViT 卷积层为了将输入的图片转为 patch，然后送入到 Transformer 中，ViT 第一个卷积的步长和卷积核大小是相等的，都是 16。如下图所示，  某些框架可能不支持这么大的 Conv 步长，导致无法转换相应模型。 MatMul卷积可以使用 im2col 加 matmul 来实现，但是由于 im2col 可能效率不高，所以一般不使用这个方式。 不过我们注意到 ViT 第一个卷积层里的
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-20 23:55" pubdate>
+              2024-11-20
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2024/10/29/llamacpp-q-quants/" target="_self">
           llama.cpp Q 量化方式总结
         </a>
@@ -335,39 +368,6 @@
               <a href="/tags/LLaMa2/">#LLaMa2</a>
             
           </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/29/hello-world/" target="_self">
-          Hello World
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/29/hello-world/" target="_self">
-        <div>
-          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-29 22:38" pubdate>
-              2024-10-29
-            </time>
-          </div>
-        
-        
         
       </div>
     </article>
