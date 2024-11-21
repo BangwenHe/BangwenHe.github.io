@@ -262,6 +262,39 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2024/11/21/opencl-tips/" target="_self">
+          opencl-tips
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/21/opencl-tips/" target="_self">
+        <div>
+          为什么从 CPU 上拷贝到 Image 里使用的是【CPU -&gt; Buffer -&gt; Image】而不是【CPU -&gt; Image】？因为 Image 一般都是用 RGBA 格式，需要填充为 4 通道，以及长宽 4 对齐等需求。如果在 CPU 上做，需要对内存进行补边再拷贝到 Image 里；不如【CPU -&gt; Buffer -&gt; Image】 的兼容性更好。前者不用
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-21 22:48" pubdate>
+              2024-11-21
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2024/11/20/convert-first-conv-in-vit/" target="_self">
           将 ViT 的第一个卷积层转为 MatMul，要求步长和卷积核相等
         </a>
@@ -653,71 +686,6 @@
               <a href="/tags/STL/">#STL</a>
             
               <a href="/tags/Functor/">#Functor</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/03/17/Algorithms/" target="_self">
-          Effective STL - 04 - Algorithms
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/17/Algorithms/" target="_self">
-        <div>
-          Algorithms条款30：确保目标区间足够大123456789101112131415vector&lt;int&gt; v = &#123;0, 1, 2, 3, 4, 5, 6, 7&#125;;cout &lt;&lt; v &lt;&lt; endl;// 对于使用区间的函数, 注意预先分配空间vector&lt;int&gt; v2;v2.reserve(v.size());tran
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-03-17 20:36" pubdate>
-              2024-03-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Effective-STL/" class="category-chain-item">Effective STL</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/STL/">#STL</a>
-            
-              <a href="/tags/Algorithms/">#Algorithms</a>
             
           </div>
         
