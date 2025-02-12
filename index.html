@@ -262,6 +262,48 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2025/02/12/transformers-high-memory-usage/" target="_self">
+          关于 DeepSeek-R1-Distill-Qwen-1.5B 显存占用比下载权重高非常多的现象分析
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/02/12/transformers-high-memory-usage/" target="_self">
+        <div>
+          现象从 huggingface 上下载下来的 DeepSeek-R1-Distill-Qwen-1.5B 模型权重大小只有 3.5GB，但是加载到 GPU 上之后，占用显存达到 5.4GB，多了 1.9GB。 排查显存占用比权重多 1.9GB 的原因应该是模型在创建的时候申请了权重以外的内存，这部分内存没有体现在权重的大小中。 使用 pytorch 查看显存占用pytorch 博客 Underst
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-12 21:29" pubdate>
+              2025-02-12
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/LLM/">#LLM</a>
+            
+              <a href="/tags/deepseek/">#deepseek</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2024/11/21/opencl-tips/" target="_self">
           opencl-tips
         </a>
@@ -284,6 +326,13 @@
           </div>
         
         
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/opencl/">#opencl</a>
+            
+          </div>
         
       </div>
     </article>
@@ -357,48 +406,6 @@
               <a href="/tags/llama-cpp/">#llama.cpp</a>
             
               <a href="/tags/LLM/">#LLM</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/29/llama2/" target="_self">
-          llama2
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/29/llama2/" target="_self">
-        <div>
-          LLaMa2Transformer IntroductionArchitecturetransformer 最主要的结构就是这张图：   在纯 Encoder 或者纯 Decoder 的架构中，会变成只有左边的 transformer block 的结构，但是区别在于 Multi-Head Attention 是否存在 mask。Encoder-only 架构为了获取每一个 token 的完整上下
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-29 22:38" pubdate>
-              2024-10-29
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Transformer/">#Transformer</a>
-            
-              <a href="/tags/LLaMa2/">#LLaMa2</a>
             
           </div>
         

@@ -1,0 +1,746 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="https://avatars.githubusercontent.com/u/32662175">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="何榜文">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="现象从 huggingface 上下载下来的 DeepSeek-R1-Distill-Qwen-1.5B 模型权重大小只有 3.5GB，但是加载到 GPU 上之后，占用显存达到 5.4GB，多了 1.9GB。 排查显存占用比权重多 1.9GB 的原因应该是模型在创建的时候申请了权重以外的内存，这部分内存没有体现在权重的大小中。 使用 pytorch 查看显存占用pytorch 博客 Underst">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于 DeepSeek-R1-Distill-Qwen-1.5B 显存占用比下载权重高非常多的现象分析">
+<meta property="og:url" content="http://hebangwen.github.io/2025/02/12/transformers-high-memory-usage/index.html">
+<meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
+<meta property="og:description" content="现象从 huggingface 上下载下来的 DeepSeek-R1-Distill-Qwen-1.5B 模型权重大小只有 3.5GB，但是加载到 GPU 上之后，占用显存达到 5.4GB，多了 1.9GB。 排查显存占用比权重多 1.9GB 的原因应该是模型在创建的时候申请了权重以外的内存，这部分内存没有体现在权重的大小中。 使用 pytorch 查看显存占用pytorch 博客 Underst">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2025/02/12/dLAWkCPMuezw2FK.png">
+<meta property="article:published_time" content="2025-02-12T13:29:30.000Z">
+<meta property="article:modified_time" content="2025-02-12T14:56:29.291Z">
+<meta property="article:author" content="何榜文">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2025/02/12/dLAWkCPMuezw2FK.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>关于 DeepSeek-R1-Distill-Qwen-1.5B 显存占用比下载权重高非常多的现象分析 - Yet Another 何榜文&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"hebangwen.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yet Another 何榜文&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/todolist/" target="_self">
+                <i class="iconfont icon-plan"></i>
+                <span>待办事项</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>联系我</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="关于 DeepSeek-R1-Distill-Qwen-1.5B 显存占用比下载权重高非常多的现象分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-12 21:29" pubdate>
+          2025年2月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">关于 DeepSeek-R1-Distill-Qwen-1.5B 显存占用比下载权重高非常多的现象分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><p>从 huggingface 上下载下来的 <a target="_blank" rel="noopener" href="https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B">DeepSeek-R1-Distill-Qwen-1.5B</a> 模型权重大小只有 3.5GB，但是加载到 GPU 上之后，占用显存达到 5.4GB，多了 1.9GB。</p>
+<h2 id="排查"><a href="#排查" class="headerlink" title="排查"></a>排查</h2><p>显存占用比权重多 1.9GB 的原因应该是模型在创建的时候申请了权重以外的内存，这部分内存没有体现在权重的大小中。</p>
+<h3 id="使用-pytorch-查看显存占用"><a href="#使用-pytorch-查看显存占用" class="headerlink" title="使用 pytorch 查看显存占用"></a>使用 pytorch 查看显存占用</h3><p>pytorch 博客 <a target="_blank" rel="noopener" href="https://pytorch.org/blog/understanding-gpu-memory-1/">Understanding GPU Memory 1: Visualizing All Allocations over Time</a> 中给出了 pytorch 内部的显存统计方法，函数都定义在 <code>torch.cuda.memory</code> 中。具体代码可以参考官方博客，下面展示显存统计结果。</p>
+<p><img src="https://s2.loli.net/2025/02/12/dLAWkCPMuezw2FK.png" srcset="/img/loading.gif" lazyload alt="pytorch-memory-viz 结果"></p>
+<p>可以看到从程序开始到结束，显存一直都是 5.4GB 左右，最上方有一小部分激活占用的显存，但是由于我们输入非常短，所以占用很小。从这个结果我们可以想象到，模型总显存占用比权重多的那部分显存在模型一开始就创建了，后续的应用层是无法操作的。</p>
+<h3 id="使用-transformers-查看显存占用"><a href="#使用-transformers-查看显存占用" class="headerlink" title="使用 transformers 查看显存占用"></a>使用 transformers 查看显存占用</h3><p>transformers 的 <code>AutoModel</code> 都提供了一个 <code>get_memory_footprint</code> 方法，可以查看模型的显存占用。其<a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers/blob/main/src/transformers/modeling_utils.py#L3087">函数源码</a>如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_memory_footprint</span>(<span class="hljs-params">self, return_buffers=<span class="hljs-literal">True</span></span>):<br>  <span class="hljs-string">r&quot;&quot;&quot;</span><br><span class="hljs-string">  Get the memory footprint of a model. This will return the memory footprint of the current model in bytes.</span><br><span class="hljs-string">  Useful to benchmark the memory footprint of the current model and design some tests. Solution inspired from the</span><br><span class="hljs-string">  PyTorch discussions: https://discuss.pytorch.org/t/gpu-memory-that-model-uses/56822/2</span><br><span class="hljs-string"></span><br><span class="hljs-string">  Arguments:</span><br><span class="hljs-string">      return_buffers (`bool`, *optional*, defaults to `True`):</span><br><span class="hljs-string">          Whether to return the size of the buffer tensors in the computation of the memory footprint. Buffers</span><br><span class="hljs-string">          are tensors that do not require gradients and not registered as parameters. E.g. mean and std in batch</span><br><span class="hljs-string">          norm layers. Please see: https://discuss.pytorch.org/t/what-pytorch-means-by-buffers/120266/2</span><br><span class="hljs-string">  &quot;&quot;&quot;</span><br>  mem = <span class="hljs-built_in">sum</span>([param.nelement() * param.element_size() <span class="hljs-keyword">for</span> param <span class="hljs-keyword">in</span> self.parameters()])<br>  <span class="hljs-keyword">if</span> return_buffers:<br>      mem_bufs = <span class="hljs-built_in">sum</span>([buf.nelement() * buf.element_size() <span class="hljs-keyword">for</span> buf <span class="hljs-keyword">in</span> self.buffers()])<br>      mem = mem + mem_bufs<br>  <span class="hljs-keyword">return</span> mem<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，模型的显存占用包括两个部分：parameter 和 buffer。使用这个方法查看 DeepSeek-R1-Distill-Qwen-1.5B 的显存占用，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">model_id = <span class="hljs-string">&quot;deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B&quot;</span><br>model = AutoModelForCausalLM.from_pretrained(model_id, device_map=<span class="hljs-string">&quot;cuda&quot;</span>, torch_dtype=torch.bfloat16)<br><br>footprint = model.get_memory_footprint() / <span class="hljs-number">10</span>**<span class="hljs-number">9</span><br>param_size = model.get_memory_footprint(<span class="hljs-literal">False</span>) / <span class="hljs-number">10</span>**<span class="hljs-number">9</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;footprint: <span class="hljs-subst">&#123;footprint:<span class="hljs-number">.3</span>f&#125;</span> GB, param_size: <span class="hljs-subst">&#123;param_size:<span class="hljs-number">.3</span>f&#125;</span> GB&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>打印结果如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs txt">footprint: 5.433 GB, param_size: 3.554 GB<br></code></pre></td></tr></table></figure>
+
+<p>parameter size 和下载的模型权重大小相同，这表明 parameter size 展示的是模型的权重，而模型整体的 footprint 包括 parameter 和 buffer，所以显存占用比权重多 1.9GB。</p>
+<p>buffer 和 parameter 的区别是？根据 <a target="_blank" rel="noopener" href="https://discuss.pytorch.org/t/what-pytorch-means-by-buffers/120266/3">PyTorch 讨论</a>，二者的区别非常小，主要区别如下：</p>
+<ol>
+<li>parameter 是模型的可变&#x2F;动态&#x2F;待训练权重，而 buffer 是模型的不可变&#x2F;静态&#x2F;不可训练权重。<code>model.state_dict()</code> 保存了模型当前的状态，所以这个函数会将 parameter 保存下来，而 buffer 则不会，因为 buffer 是不需要通过反向传播训练的，每次训练时它都是完全相同的，比如位置编码。</li>
+<li>将一个张量声明为模型的 buffer，能够明确地表明这个张量是不需要反向传播的，可读性更高。</li>
+</ol>
+<h3 id="查看模型的-buffer-大小"><a href="#查看模型的-buffer-大小" class="headerlink" title="查看模型的 buffer 大小"></a>查看模型的 buffer 大小</h3><p>pytorch 对 nn.Module 都提供了一个 <code>named_buffers</code> 方法，可以以迭代器返回模型中所有定义的 buffer，在这里我们使用它来查看模型中所有与权重无关的张量。代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">named_buffers = <span class="hljs-built_in">list</span>(model.named_buffers())<br>name_to_shape = [(name, tensor.shape) <span class="hljs-keyword">for</span> name, tensor <span class="hljs-keyword">in</span> named_buffers]<br><span class="hljs-keyword">for</span> name, shape <span class="hljs-keyword">in</span> name_to_shape[:<span class="hljs-number">6</span>]:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;name&#125;</span>: <span class="hljs-subst">&#123;shape&#125;</span>&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>打印结果如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">model.layers.0.self_attn.rotary_emb.inv_freq: torch.Size([64])<br>model.layers.0.self_attn.rotary_emb.cos_cached: torch.Size([131072, 128])<br>model.layers.0.self_attn.rotary_emb.sin_cached: torch.Size([131072, 128])<br>model.layers.1.self_attn.rotary_emb.inv_freq: torch.Size([64])<br>model.layers.1.self_attn.rotary_emb.cos_cached: torch.Size([131072, 128])<br>model.layers.1.self_attn.rotary_emb.sin_cached: torch.Size([131072, 128])<br></code></pre></td></tr></table></figure>
+
+<p>所有 buffer 都是被 rotary_embedding 模块创建的，它们表达了模型中的位置编码信息。与 parameter 不同，它们不需要被反向传播更新，因此被定义为 buffer。其中，131072 是 qwen 支持的最大上下文长度。由于位置编码是静态的，所以这里提前计算好最大上下文的旋转位置编码，避免在推理时每次都计算。但是这样导致了在上下文非常长时，光是旋转位置编码的内存占用就达到了 131072 * 128 * 2 * 28 * 2 &#x2F; 10**9 &#x3D; 1.88GB，而且每一层的旋转位置编码还是完全相同的，浪费了许多显存。</p>
+<h3 id="如何解决？"><a href="#如何解决？" class="headerlink" title="如何解决？"></a>如何解决？</h3><h4 id="手动设置最大上下文"><a href="#手动设置最大上下文" class="headerlink" title="手动设置最大上下文"></a>手动设置最大上下文</h4><p>在模型加载时手动设置上下文长度，可以减少 buffer 长度，从而减少显存占用。代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python">model_id = <span class="hljs-string">&quot;deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B&quot;</span><br>model = AutoModelForCausalLM.from_pretrained(<br>  model_id, <br>  device_map=<span class="hljs-string">&quot;cuda&quot;</span>, <br>  torch_dtype=torch.bfloat16,<br>  max_position_embeddings=<span class="hljs-number">4096</span>)<br><br>footprint = model.get_memory_footprint() / <span class="hljs-number">10</span>**<span class="hljs-number">9</span><br>param_size = model.get_memory_footprint(<span class="hljs-literal">False</span>) / <span class="hljs-number">10</span>**<span class="hljs-number">9</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;footprint: <span class="hljs-subst">&#123;footprint:<span class="hljs-number">.3</span>f&#125;</span> GB, param_size: <span class="hljs-subst">&#123;param_size:<span class="hljs-number">.3</span>f&#125;</span> GB&quot;</span>)<br><br>named_buffers = <span class="hljs-built_in">list</span>(model.named_buffers())<br>name_to_shape = [(name, tensor.shape) <span class="hljs-keyword">for</span> name, tensor <span class="hljs-keyword">in</span> named_buffers]<br><span class="hljs-keyword">for</span> name, shape <span class="hljs-keyword">in</span> name_to_shape[:<span class="hljs-number">6</span>]:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;name&#125;</span>: <span class="hljs-subst">&#123;shape&#125;</span>&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>打印结果如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">footprint: 3.613 GB, param_size: 3.554 GB<br>model.layers.0.self_attn.rotary_emb.inv_freq: torch.Size([64])<br>model.layers.0.self_attn.rotary_emb.cos_cached: torch.Size([4096, 128])<br>model.layers.0.self_attn.rotary_emb.sin_cached: torch.Size([4096, 128])<br>model.layers.1.self_attn.rotary_emb.inv_freq: torch.Size([64])<br>model.layers.1.self_attn.rotary_emb.cos_cached: torch.Size([4096, 128])<br>model.layers.1.self_attn.rotary_emb.sin_cached: torch.Size([4096, 128])<br></code></pre></td></tr></table></figure>
+
+<p>通过 <code>max_position_embeddings</code> 参数设置最大上下文长度，显存占用从 5.433GB 减小到 3.613GB。</p>
+<h4 id="transformers-在-4-45-1-版本不再缓存旋转位置编码，而是手动计算"><a href="#transformers-在-4-45-1-版本不再缓存旋转位置编码，而是手动计算" class="headerlink" title="transformers 在 4.45.1 版本不再缓存旋转位置编码，而是手动计算"></a>transformers 在 4.45.1 版本不再缓存旋转位置编码，而是手动计算</h4><p>在 transformers <a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers/commit/65bb28444849976f853063edb958b3ef3dd59d12">commit 65bb284</a> 中，为了确保 <code>torch.compile</code> 能够正确编译模型，对所有 Decoder 模型进行了一次重构。这导致 rotary_embedding 的 cos 和 sin 值不再被缓存，而是每次都手动计算。修改前后的代码如下：</p>
+<details class="custom-block details" style="display: block; position: relative; border-radius: 2px; margin: 1.6em 0px; padding: 1.6em; background-color: rgb(238, 238, 238); color: rgb(44, 62, 80); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Oxygen, Ubuntu, Cantarell, &quot;Fira Sans&quot;, &quot;Droid Sans&quot;, &quot;Helvetica Neue&quot;, sans-serif; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">
+<summary style="outline: none; cursor: pointer;">transformers 4.44 与 4.45.1 的 QwenRotaryEmbedding 实现对比</summary>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-0pky">transformers - 4.44</th>
+    <th class="tg-0pky">transformers - 4.45</th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-0pky"># Copied from transformers.models.mixtral.modeling_mixtral.MixtralRotaryEmbedding with Mixtral-&gt;Qwen2<br>class Qwen2RotaryEmbedding(nn.Module):<br>    def __init__(self, dim, max_position_embeddings=2048, base=10000, device=None):<br>        super().__init__()<br><br>        self.dim = dim<br>        self.max_position_embeddings = max_position_embeddings<br>        self.base = base<br>        inv_freq = 1.0 / (self.base ** (torch.arange(0, self.dim, 2, dtype=torch.int64).float().to(device) / self.dim))<br>        self.register_buffer("inv_freq", inv_freq, persistent=False)<br><br>        # Build here to make `torch.jit.trace` work.<br>        self._set_cos_sin_cache(<br>            seq_len=max_position_embeddings, device=self.inv_freq.device, dtype=torch.get_default_dtype()<br>        )<br><br>    def _set_cos_sin_cache(self, seq_len, device, dtype):<br>        self.max_seq_len_cached = seq_len<br>        t = torch.arange(self.max_seq_len_cached, device=device, dtype=torch.int64).type_as(self.inv_freq)<br><br>        freqs = torch.outer(t, self.inv_freq)<br>        # Different from paper, but it uses a different permutation in order to obtain the same calculation<br>        emb = torch.cat((freqs, freqs), dim=-1)<br>        self.register_buffer("cos_cached", emb.cos().to(dtype), persistent=False)<br>        self.register_buffer("sin_cached", emb.sin().to(dtype), persistent=False)<br><br>    def forward(self, x, seq_len=None):<br>        # x: [bs, num_attention_heads, seq_len, head_size]<br>        if seq_len &gt; self.max_seq_len_cached:<br>            self._set_cos_sin_cache(seq_len=seq_len, device=x.device, dtype=x.dtype)<br><br>        return (<br>            self.cos_cached[:seq_len].to(dtype=x.dtype),<br>            self.sin_cached[:seq_len].to(dtype=x.dtype),<br>        )</td>
+    <td class="tg-0pky"># Copied from transformers.models.llama.modeling_llama.LlamaRotaryEmbedding with Llama-&gt;Qwen2<br>class Qwen2RotaryEmbedding(nn.Module):<br>    def __init__(<br>        self,<br>        dim=None,<br>        max_position_embeddings=2048,<br>        base=10000,<br>        device=None,<br>        scaling_factor=1.0,<br>        rope_type="default",<br>        config: Optional[Qwen2Config] = None,<br>    ):<br>        super().__init__()<br>        # TODO (joao): remove the `if` below, only used for BC<br>        self.rope_kwargs = {}<br>        if config is None:<br>            logger.warning_once(<br>                "`Qwen2RotaryEmbedding` can now be fully parameterized by passing the model config through the "<br>                "`config` argument. All other arguments will be removed in v4.46"<br>            )<br>            self.rope_kwargs = {<br>                "rope_type": rope_type,<br>                "factor": scaling_factor,<br>                "dim": dim,<br>                "base": base,<br>                "max_position_embeddings": max_position_embeddings,<br>            }<br>            self.rope_type = rope_type<br>            self.max_seq_len_cached = max_position_embeddings<br>            self.original_max_seq_len = max_position_embeddings<br>        else:<br>            # BC: "rope_type" was originally "type"<br>            if config.rope_scaling is not None:<br>                self.rope_type = config.rope_scaling.get("rope_type", config.rope_scaling.get("type"))<br>            else:<br>                self.rope_type = "default"<br>            self.max_seq_len_cached = config.max_position_embeddings<br>            self.original_max_seq_len = config.max_position_embeddings<br><br>        self.config = config<br>        self.rope_init_fn = ROPE_INIT_FUNCTIONS[self.rope_type]<br><br>        inv_freq, self.attention_scaling = self.rope_init_fn(self.config, device, **self.rope_kwargs)<br>        self.register_buffer("inv_freq", inv_freq, persistent=False)<br>        self.original_inv_freq = self.inv_freq<br><br>    def _dynamic_frequency_update(self, position_ids, device):<br>        """<br>        dynamic RoPE layers should recompute `inv_freq` in the following situations:<br>        1 - growing beyond the cached sequence length (allow scaling)<br>        2 - the current sequence length is in the original scale (avoid losing precision with small sequences)<br>        """<br>        seq_len = torch.max(position_ids) + 1<br>        if seq_len &gt; self.max_seq_len_cached:  # growth<br>            inv_freq, self.attention_scaling = self.rope_init_fn(<br>                self.config, device, seq_len=seq_len, **self.rope_kwargs<br>            )<br>            self.register_buffer("inv_freq", inv_freq, persistent=False)  # TODO joao: may break with compilation<br>            self.max_seq_len_cached = seq_len<br><br>        if seq_len &lt; self.original_max_seq_len and self.max_seq_len_cached &gt; self.original_max_seq_len:  # reset<br>            self.register_buffer("inv_freq", self.original_inv_freq, persistent=False)<br>            self.max_seq_len_cached = self.original_max_seq_len<br><br>    @torch.no_grad()<br>    def forward(self, x, position_ids):<br>        if "dynamic" in self.rope_type:<br>            self._dynamic_frequency_update(position_ids, device=x.device)<br><br>        # Core RoPE block<br>        inv_freq_expanded = self.inv_freq[None, :, None].float().expand(position_ids.shape[0], -1, 1)<br>        position_ids_expanded = position_ids[:, None, :].float()<br>        # Force float32 (see https://github.com/huggingface/transformers/pull/29285)<br>        device_type = x.device.type<br>        device_type = device_type if isinstance(device_type, str) and device_type != "mps" else "cpu"<br>        with torch.autocast(device_type=device_type, enabled=False):<br>            freqs = (inv_freq_expanded.float() @ position_ids_expanded.float()).transpose(1, 2)<br>            emb = torch.cat((freqs, freqs), dim=-1)<br>            cos = emb.cos()<br>            sin = emb.sin()<br><br>        # Advanced RoPE types (e.g. yarn) apply a post-processing scaling factor, equivalent to scaling attention<br>        cos = cos * self.attention_scaling<br>        sin = sin * self.attention_scaling<br><br>        return cos.to(dtype=x.dtype), sin.to(dtype=x.dtype)</td>
+  </tr>
+</tbody></table>
+</details>
+
+<p>在 transformers-4.45.1 之后，模型不再缓存 <code>sin_cached</code> 和 <code>cos_cached</code>，而是每次都重新计算。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/LLM/" class="print-no-link">#LLM</a>
+      
+        <a href="/tags/deepseek/" class="print-no-link">#deepseek</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>关于 DeepSeek-R1-Distill-Qwen-1.5B 显存占用比下载权重高非常多的现象分析</div>
+      <div>http://hebangwen.github.io/2025/02/12/transformers-high-memory-usage/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>何榜文</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/21/opencl-tips/" title="opencl-tips">
+                        <span class="hidden-mobile">opencl-tips</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
