@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>MiniCPM-O-2_6 模型结构介绍</title>
+    <link href="/2025/02/20/minicpm-o-2-6/"/>
+    <url>/2025/02/20/minicpm-o-2-6/</url>
+    
+    <content type="html"><![CDATA[<h2 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h2><p>介绍一下有关 VLM&#x2F;MLLM 的模型结构，从模型结构上指导模型部署，了解各个模块的作用。</p><h2 id="MiniCPM-O-2-6-简介"><a href="#MiniCPM-O-2-6-简介" class="headerlink" title="MiniCPM-O-2_6 简介"></a>MiniCPM-O-2_6 简介</h2><p>O 代表了 Omni，含义是全能。MiniCPM-O-2_6 是一个基于 MiniCPM-2 的多模态模型，在之前的 MiniCPM-V-2_6 的基础上增加了额外的多模态能力，包括【语音识别】、【语音生成】的功能。由于语音作为文本嵌入到了 LLM 的输入之中，还可以实现【语音提问图片内容，语音回复】的功能。OpenBMB 官方博客见 <a href="https://openbmb.notion.site/MiniCPM-o-2-6-A-GPT-4o-Level-MLLM-for-Vision-Speech-and-Multimodal-Live-Streaming-on-Your-Phone-185ede1b7a558042b5d5e45e6b237da9#185ede1b7a5580d2b213c07815b32183">MiniCPM-o 2.6: A GPT-4o Level MLLM for Vision, Speech, and Multimodal Live Streaming on Your Phone</a>。</p><p>为了实现上面的功能，MiniCPM-O-2_6 一共有四个模块：</p><ul><li><strong>SigLip-400M 视觉编码器</strong>：用于提取视觉特征，并映射到 LLM 嵌入空间</li><li><strong>Whisper-medium-300M 语音编码器</strong>：用于提取语音特征，也映射到 LLM 嵌入空间</li><li><strong>LLM</strong>：基于 Qwen2.5-7B 模型，能够支持多模态输入，但是受限于 LLM 的表征，实际上只生成出文本，不能生成语音。</li><li><strong>ChatTTS-200M</strong>：提供语音生成能力，它也是一个基于 LLM 自回归范式的模型，接受文本+语音 ID 作为输入，并生成语音 ID</li></ul><p>在训练过程中，预训练主要提供视觉+语音理解能力（Vision Pretraining + Audio Pretraining + Omni Pretraining），后训练提供了语音生成能力（Omni SFT）。</p><p><img src="https://openbmb.notion.site/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F0578a65b-f9f4-48da-8e9a-baa6c51a4f5e%2Fcc5f1bb8-d71c-4d93-9202-91e134c89d7d%2Fimage.png?table=block&id=185ede1b-7a55-8010-8e95-cd94c89bac74&spaceId=0578a65b-f9f4-48da-8e9a-baa6c51a4f5e&width=1420&userId=&cache=v2" alt="MLLMs 能力对比"></p><h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><h3 id="视觉编码器"><a href="#视觉编码器" class="headerlink" title="视觉编码器"></a>视觉编码器</h3><p>视觉编码器使用的是 SigLip-400M，一些常用的视觉编码器模型如下：</p><table><thead><tr><th>ViT</th><th>输入分辨率</th><th>Patch 大小</th><th>其它</th></tr></thead><tbody><tr><td>CLIP: <a href="https://arxiv.org/abs/2103.00020">Learning Transferable Visual Models<br>From Natural Language Supervision</a></td><td>224x224</td><td>14x14</td><td>openai 最先推出的 CLIP，基于 ViT-B&#x2F;32 ViT-B&#x2F;16 Vit-L&#x2F;14。</td></tr><tr><td>SigLip: <a href="https://arxiv.org/abs/2303.15343">Sigmoid Loss for Language Image<br>Pretraining</a></td><td>384x384</td><td>14x14</td><td>SigLip 使用了跟 CLIP 相同的对比学习方法，但是使用的是 sigmoid 函数作为相似程度区分，CLIP 使用的是 softmax。从结构上看，SigLip 还使用了其他的 vision backbone，包括 ViT-B ViT-L So-400m。</td></tr></tbody></table><p>Patch 大小代表了多大的图像像素会被映射为单个 hidden_states，patch 为 14x14 就表示每 14x14 个图片块会被映射为 1 个 hidden_states，使用 stride 为 14x14，kernel 为 14x14 的不重叠卷积实现。因为卷积不重叠，所以可以使用 reshape 直接完成 im2col 的操作，再使用 matmul 实现卷积，详见 <a href="/2024/11/20/convert-first-conv-in-vit/" title="将 ViT 的第一个卷积层转为 MatMul，要求步长和卷积核相等">将 ViT 的第一个卷积层转为 MatMul，要求步长和卷积核相等</a></p><p>PS：huggingface 中的 <a href="https://huggingface.co/google/siglip-so400m-patch14-384">siglip-so400m-patch14-384</a> 的含义是：基于 So-400M 的 SigLip 模型，使用 patch 大小为 14 的 384x384 的图像作为输入。</p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>关于 DeepSeek-R1-Distill-Qwen-1.5B 显存占用比下载权重高非常多的现象分析</title>
     <link href="/2025/02/12/transformers-high-memory-usage/"/>
     <url>/2025/02/12/transformers-high-memory-usage/</url>
@@ -317,9 +330,9 @@
       
       <tag>C++</tag>
       
-      <tag>Effective STL</tag>
-      
       <tag>STL</tag>
+      
+      <tag>Effective STL</tag>
       
       <tag>Containers</tag>
       
