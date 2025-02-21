@@ -29,8 +29,13 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/openai/whisper/main/approach.png">
 <meta property="og:image" content="https://s2.loli.net/2025/02/21/B6jbg8v1XD9KZra.png">
 <meta property="article:published_time" content="2025-02-20T15:12:17.000Z">
-<meta property="article:modified_time" content="2025-02-21T15:00:08.005Z">
+<meta property="article:modified_time" content="2025-02-21T15:12:48.905Z">
 <meta property="article:author" content="何榜文">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="Vision Transformer">
+<meta property="article:tag" content="ViT">
+<meta property="article:tag" content="Whisper">
+<meta property="article:tag" content="TTS">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://openbmb.notion.site/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F0578a65b-f9f4-48da-8e9a-baa6c51a4f5e%2Fcc5f1bb8-d71c-4d93-9202-91e134c89d7d%2Fimage.png?table=block&id=185ede1b-7a55-8010-8e95-cd94c89bac74&spaceId=0578a65b-f9f4-48da-8e9a-baa6c51a4f5e&width=1420&userId=&cache=v2">
   
@@ -274,7 +279,7 @@
         
         
         
-          14 分钟
+          15 分钟
         
       </span>
     
@@ -380,7 +385,7 @@
 <p>上图展示了 minicpm-o 的一个 demo 架构图，即可以实现：使用语音对视频流进行提问，生成回复后，使用语音回答。同时，这都是端到端实现的。</p>
 <p>这张图上最重要的一个名称是 <code>OTDM</code>，全称 Omni-modality Time Division Multiplexer，多模态时分复用。落到实践上，就是以 1s 为间隔读取视频流，并通过视觉和语音编码器送入到 LLM 中。如果这个时候有语音提问，那么中间一部分的视频就会被截断（omitted inputs），直到语音结束，才重新读取视频流。</p>
 <p>这个图中 LLM 的作用有三个：1、接收多模态的输入，包括视觉、语音和文本；2、生成文本，作为下一步 TTS 模型的输入；3、生成音色嵌入 $H_0$，作为 TTS 模型的输入。</p>
-<h3 id="TTS"><a href="#TTS" class="headerlink" title="TTS"></a>TTS</h3><p>To be done.</p>
+<h3 id="TTS"><a href="#TTS" class="headerlink" title="TTS"></a>TTS</h3><p>由于作为骨干网络的 LLM 并不具备语音生成功能，所以 minicpm-o 额外使用了一个 TTS 模型，用于生成语音，TTS 模型来源于 <a target="_blank" rel="noopener" href="https://github.com/2Noise/ChatTTS">ChatTTS</a> 项目。</p>
 
                 
               </div>
@@ -389,6 +394,21 @@
             <div>
               <div class="post-metas my-3">
   
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/LLM/" class="print-no-link">#LLM</a>
+      
+        <a href="/tags/Vision-Transformer/" class="print-no-link">#Vision Transformer</a>
+      
+        <a href="/tags/ViT/" class="print-no-link">#ViT</a>
+      
+        <a href="/tags/Whisper/" class="print-no-link">#Whisper</a>
+      
+        <a href="/tags/TTS/" class="print-no-link">#TTS</a>
+      
+    </div>
   
 </div>
 
@@ -505,6 +525,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -722,6 +748,49 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 
