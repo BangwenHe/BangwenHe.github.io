@@ -16,23 +16,35 @@
   <meta name="author" content="何榜文">
   <meta name="keywords" content="">
   
-    <meta property="og:type" content="website">
-<meta property="og:title" content="归档">
-<meta property="og:url" content="http://hebangwen.github.io/archives/2024/10/index.html">
+    <meta name="description" content="一个死锁案例代码部分逻辑： 1234567for (int i &#x3D; tid; i &lt; work_size; i +&#x3D; thread_num) &#123;  while (is_work_ready[i] &#x3D;&#x3D; 0) &#123;     &#x2F;&#x2F; spin lock  &#125;  &#x2F;&#x2F; do work  foo(work[i]);&#125;  下面这段代码看起来是合理的，线程执行的状态依">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPU 忙等的死锁案例">
+<meta property="og:url" content="http://hebangwen.github.io/2025/02/26/deadloop/index.html">
 <meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
+<meta property="og:description" content="一个死锁案例代码部分逻辑： 1234567for (int i &#x3D; tid; i &lt; work_size; i +&#x3D; thread_num) &#123;  while (is_work_ready[i] &#x3D;&#x3D; 0) &#123;     &#x2F;&#x2F; spin lock  &#125;  &#x2F;&#x2F; do work  foo(work[i]);&#125;  下面这段代码看起来是合理的，线程执行的状态依">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-26T15:43:11.000Z">
+<meta property="article:modified_time" content="2025-02-26T15:57:57.972Z">
 <meta property="article:author" content="何榜文">
+<meta property="article:tag" content="c++">
+<meta property="article:tag" content="std::threads">
 <meta name="twitter:card" content="summary_large_image">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>归档 - Yet Another 何榜文&#39;s Blog</title>
+  <title>CPU 忙等的死锁案例 - Yet Another 何榜文&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
 
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
 
 
@@ -82,7 +94,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 60vh;">
+<div class="header-inner" style="height: 70vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -224,9 +236,49 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="归档"></span>
+            <span id="subtitle" data-typed-text="CPU 忙等的死锁案例"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-26 23:43" pubdate>
+          2025年2月26日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          300 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          3 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
 
         
       </div>
@@ -242,40 +294,180 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div id="board"
-          >
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
-
-<div class="list-group">
-  <p class="h4">共计 22 篇文章</p>
-  <hr>
-  
-  
-    
       
-      <p class="h5">2024</p>
-    
-    <a href="/2024/10/29/llamacpp-q-quants/" class="list-group-item list-group-item-action">
-      <time>10-29</time>
-      <div class="list-group-item-title">llama.cpp Q 量化方式总结</div>
-    </a>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CPU 忙等的死锁案例</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="一个死锁案例"><a href="#一个死锁案例" class="headerlink" title="一个死锁案例"></a>一个死锁案例</h2><p>代码部分逻辑：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = tid; i &lt; work_size; i += thread_num) &#123;<br>  <span class="hljs-keyword">while</span> (is_work_ready[i] == <span class="hljs-number">0</span>) &#123;<br>     <span class="hljs-comment">// spin lock</span><br>  &#125;<br>  <span class="hljs-comment">// do work</span><br>  <span class="hljs-built_in">foo</span>(work[i]);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>下面这段代码看起来是合理的，线程执行的状态依赖于 <code>is_work_ready[i]</code>，通过这个变量实现主线程和子线程之间通信。但是实际上由于 CPU 会陷入忙等（busy-waiting），导致当主线程更新 flag 之后，子线程不会读取这个变量，陷入死锁。即「如果 is_work_ready 为 1，正常执行」，但是「is_work_ready 为 0 时，陷入死锁，无法恢复」。</p>
+<p>有关多线程编程的方式：</p>
+<ol>
+<li>如果代码涉及到主线程与子线程的通信，最好使用同步 API，不要使用简单的 dead loop 。比如 ChatGPT 建议使用 <code>std::mutex</code> + <code>std::conditional_variable</code> 通信。</li>
+<li>dead loop 内部增加 <code>std::this_thread::sleep_for(std::chrono::milliseconds(1));</code> 可以避免死锁的出现</li>
+<li>为什么把预处理放到线程内可以避免出现死锁？因为此时主线程与子线程没有发生通信，仅仅只有子线程拷贝主线程的内存，而且没有子线程的内存写入冲突，所以总体来看，是没有死锁的。（也没有使用基于 while 的 dead loop）</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
   
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/c/" class="print-no-link">#c++</a>
+      
+        <a href="/tags/std-threads/" class="print-no-link">#std::threads</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CPU 忙等的死锁案例</div>
+      <div>http://hebangwen.github.io/2025/02/26/deadloop/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>何榜文</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/02/26/onnx-static-graph-to-dynamic-graph/" title="ONNX 静态图转换为动态图">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ONNX 静态图转换为动态图</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/02/20/minicpm-o-2-6/" title="MiniCPM-O-2_6 模型结构介绍">
+                        <span class="hidden-mobile">MiniCPM-O-2_6 模型结构介绍</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
 </div>
 
 
 
 
 
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
 
     
@@ -393,6 +585,99 @@
 
 
 
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
 
   <script  src="/js/local-search.js" ></script>
 

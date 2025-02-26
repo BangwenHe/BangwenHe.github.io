@@ -262,6 +262,109 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2024/03/27/opencl-alloc-error/" target="_self">
+          opencl-alloc-error
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/27/opencl-alloc-error/" target="_self">
+        <div>
+          OpenCL Image 申请失败问题描述在使用 MNN 部署 ViT 的过程中，出现了这个报错： 1Alloc Image 3 x 49152 error, code:-40  解决方案这个问题是因为这个图像的尺寸超过了本设备 OpenCL 支持的最大尺寸，Adreno 630 的最大尺寸是 16384x16384，所以这个图像的尺寸 3x49152 超过了这个限制。这个尺寸出现的地方在 ViT
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-03-27 10:06" pubdate>
+              2024-03-27
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/opencl/">#opencl</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/03/17/Programming-by-STL/" target="_self">
+          Effective STL - 06 - Programming by STL
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/17/Programming-by-STL/" target="_self">
+        <div>
+          Programming by STL条款43：尽量用算法调用代替手写循环 如果你要做的是算法已经提供了的，或者非常接近于它提供的，调用泛型算法更清晰。 如果循环里要做的事非常简单，但调用算法时却需要使用绑定和适配器或者需要独立的仿函数类，你恐怕还是写循环比较好。 最后，如果你在循环里做的事相当长或相当复杂，天平再次倾向于算法。  条款44：尽量用成员函数代替同名的算法关联容器提供了count、fi
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-03-17 20:42" pubdate>
+              2024-03-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Effective-STL/" class="category-chain-item">Effective STL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/STL/">#STL</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2024/03/17/Functor/" target="_self">
           Effective STL - 05 - Functor
         </a>
@@ -693,77 +796,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/03/12/Deploy-ORT-model/" target="_self">
-          ORT 模型部署
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/12/Deploy-ORT-model/" target="_self">
-        <div>
-          Deploy ORT modelonnxruntime-inference-examples&#x2F;mobilenet.ipynb at main · microsoft&#x2F;onnxruntime-inference-examples 详细记录YOLACT实例分割ncnn实现 真正部署模型，不应该把后处理包括在模型推理中，这会影响模型在GPU上的部署，性能也不一定会好。这里的后处理，不
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-03-12 08:52" pubdate>
-              2024-03-12
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/03/11/MNN_GPU_float16/" target="_self">
-          MNN GPU float16 使用原理
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/11/MNN_GPU_float16/" target="_self">
-        <div>
-          我观察到 MNN 在使用 GPU OpenCL 时，会默认使用 float16 的格式，导致模型评测时时间不同，如图。因此查看了 MNN 的源码，发现了一些有趣的东西。  MNN 使用 MNN::BackendConfig::Precision_Low 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。 当导出的模型可以使用 float32 或者 float16 保
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-03-11 21:12" pubdate>
-              2024-03-11
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#board">3</a><a class="extend next" rel="next" href="/page/3/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

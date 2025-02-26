@@ -262,6 +262,88 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2025/02/26/onnx-static-graph-to-dynamic-graph/" target="_self">
+          ONNX 静态图转换为动态图
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/02/26/onnx-static-graph-to-dynamic-graph/" target="_self">
+        <div>
+          模型转换ONNX 模型从动态图变为静态图是非常容易的，使用 onnxsim --overwrite-input-shape input_name:dim0,dim1,dim2 model.onnx 即可，onnxsim 内部会将动态维度转为静态维度，同时执行图优化。 但是如果只有静态图，想要变回动态图，则比较困难。一般来说，Batch 维度是最容易改变的，修改 Batch 维度可以一次推理 N 个
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-26 23:49" pubdate>
+              2025-02-26
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/ONNX/">#ONNX</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2025/02/26/deadloop/" target="_self">
+          CPU 忙等的死锁案例
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/02/26/deadloop/" target="_self">
+        <div>
+          一个死锁案例代码部分逻辑： 1234567for (int i = tid; i &lt; work_size; i += thread_num) &#123;  while (is_work_ready[i] == 0) &#123;     // spin lock  &#125;  // do work  foo(work[i]);&#125;  下面这段代码看起来是合理的，线程执行的状态依
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-26 23:43" pubdate>
+              2025-02-26
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/c/">#c++</a>
+            
+              <a href="/tags/std-threads/">#std::threads</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2025/02/20/minicpm-o-2-6/" target="_self">
           MiniCPM-O-2_6 模型结构介绍
         </a>
@@ -580,114 +662,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/03/27/opencl-alloc-error/" target="_self">
-          opencl-alloc-error
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/27/opencl-alloc-error/" target="_self">
-        <div>
-          OpenCL Image 申请失败问题描述在使用 MNN 部署 ViT 的过程中，出现了这个报错： 1Alloc Image 3 x 49152 error, code:-40  解决方案这个问题是因为这个图像的尺寸超过了本设备 OpenCL 支持的最大尺寸，Adreno 630 的最大尺寸是 16384x16384，所以这个图像的尺寸 3x49152 超过了这个限制。这个尺寸出现的地方在 ViT
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-03-27 10:06" pubdate>
-              2024-03-27
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/opencl/">#opencl</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/03/17/Programming-by-STL/" target="_self">
-          Effective STL - 06 - Programming by STL
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/17/Programming-by-STL/" target="_self">
-        <div>
-          Programming by STL条款43：尽量用算法调用代替手写循环 如果你要做的是算法已经提供了的，或者非常接近于它提供的，调用泛型算法更清晰。 如果循环里要做的事非常简单，但调用算法时却需要使用绑定和适配器或者需要独立的仿函数类，你恐怕还是写循环比较好。 最后，如果你在循环里做的事相当长或相当复杂，天平再次倾向于算法。  条款44：尽量用成员函数代替同名的算法关联容器提供了count、fi
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-03-17 20:42" pubdate>
-              2024-03-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Effective-STL/" class="category-chain-item">Effective STL</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/STL/">#STL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

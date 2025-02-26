@@ -17,8 +17,8 @@
   <meta name="keywords" content="">
   
     <meta property="og:type" content="website">
-<meta property="og:title" content="归档">
-<meta property="og:url" content="http://hebangwen.github.io/archives/2024/10/index.html">
+<meta property="og:title" content="Yet Another 何榜文&#39;s Blog">
+<meta property="og:url" content="http://hebangwen.github.io/page/3/index.html">
 <meta property="og:site_name" content="Yet Another 何榜文&#39;s Blog">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="何榜文">
@@ -28,7 +28,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>归档 - Yet Another 何榜文&#39;s Blog</title>
+  <title>Yet Another 何榜文&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -82,7 +82,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 60vh;">
+<div class="header-inner" style="height: 100vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -218,19 +218,23 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+     style="background: url('https://bing.ee123.net/img/rand') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="归档"></span>
+            <span id="subtitle" data-typed-text="One week is 2% of a year."></span>
           
         </div>
 
         
       </div>
 
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
       
     </div>
   </div>
@@ -244,30 +248,87 @@
     
       <div class="container nopadding-x-md">
         <div id="board"
-          >
+          style="margin-top: 0">
           
           <div class="container">
             <div class="row">
               <div class="col-12 col-md-10 m-auto">
                 
 
-<div class="list-group">
-  <p class="h4">共计 22 篇文章</p>
-  <hr>
-  
-  
+
+  <div class="row mx-auto index-card">
     
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/03/12/Deploy-ORT-model/" target="_self">
+          ORT 模型部署
+        </a>
+      </h2>
+
       
-      <p class="h5">2024</p>
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/12/Deploy-ORT-model/" target="_self">
+        <div>
+          Deploy ORT modelonnxruntime-inference-examples&#x2F;mobilenet.ipynb at main · microsoft&#x2F;onnxruntime-inference-examples 详细记录YOLACT实例分割ncnn实现 真正部署模型，不应该把后处理包括在模型推理中，这会影响模型在GPU上的部署，性能也不一定会好。这里的后处理，不
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-03-12 08:52" pubdate>
+              2024-03-12
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
     
-    <a href="/2024/10/29/llamacpp-q-quants/" class="list-group-item list-group-item-action">
-      <time>10-29</time>
-      <div class="list-group-item-title">llama.cpp Q 量化方式总结</div>
-    </a>
-  
-</div>
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/03/11/MNN_GPU_float16/" target="_self">
+          MNN GPU float16 使用原理
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/11/MNN_GPU_float16/" target="_self">
+        <div>
+          我观察到 MNN 在使用 GPU OpenCL 时，会默认使用 float16 的格式，导致模型评测时时间不同，如图。因此查看了 MNN 的源码，发现了一些有趣的东西。  MNN 使用 MNN::BackendConfig::Precision_Low 时，会根据 GPU 的实际情况判断是否使用 float16 的数据格式。代码随附。 当导出的模型可以使用 float32 或者 float16 保
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-03-11 21:12" pubdate>
+              2024-03-11
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
 
 
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><span class="page-number current">3</span>
+    </span>
+  </nav>
 
 
 
